@@ -25,15 +25,17 @@
             <!-- Paquetes -->
             <section class="p-6 grid grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto hide-scrollbar">
                 <!-- 3 pzs. con papas medianas -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left" 
+                onclick="agregarAlCarrito('Combo 3 pzs', 115)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍗</span>
                     <h3 class="font-bold text-lg leading-tight">Combo 3 pzs</h3>
                     <p class="text-slate-400 text-sm mb-3">3 tiras + papas medianas</p>
-                    <span class="text-orange-400 font-mono font-bold text-xl">$135.00</span>
+                    <span class="text-orange-400 font-mono font-bold text-xl">$115.00</span>
                 </button>
 
                 <!-- 6 pzs. con papas medianas -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left" 
+                onclick="agregarAlCarrito('Combo 6 pzs', 245)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍗</span>
                     <h3 class="font-bold text-lg leading-tight">Combo 6 pzs</h3>
                     <p class="text-slate-400 text-sm mb-3">6 tiras + 2 papas medianas</p>
@@ -41,7 +43,8 @@
                 </button>
 
                 <!-- 9 pzs. con 2 papas medianas -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left" 
+                onclick="agregarAlCarrito('Combo 9 pzs', 315)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍗</span>
                     <h3 class="font-bold text-lg leading-tight">Combo 9 pzs</h3>
                     <p class="text-slate-400 text-sm mb-3">9 tiras + 2 papas medianas</p>
@@ -49,7 +52,8 @@
                 </button>
 
                 <!-- 12 pzs. con papas familiares -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left"
+                onclick="agregarAlCarrito('Combo 12 pzs', 415)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍗</span>
                     <h3 class="font-bold text-lg leading-tight">Combo 12 pzs</h3>
                     <p class="text-slate-400 text-sm mb-3">Orden familiar - 12 tiras + papas familiares</p>
@@ -58,32 +62,36 @@
                 
                 <!-- Complementos -->
                 <!-- Papas extra -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left"
+                onclick="agregarAlCarrito('Papas extra medianas', 40)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍟</span>
-                    <h3 class="font-bold text-lg leading-tight">Papas extras</h3>
+                    <h3 class="font-bold text-lg leading-tight">Papas extras medianas</h3>
                     <p class="text-slate-400 text-sm mb-3">Orden de papas fritas medianas 130gr</p>
                     <span class="text-orange-400 font-mono font-bold text-xl">$40.00</span>
                 </button>
 
                 <!-- Papas extra -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left"
+                onclick="agregarAlCarrito('Papas extra familiares', 95)"> <!-- Atributo para la acción -->
                     <span class="text-3xl mb-2 block">🍟</span>
                     <h3 class="font-bold text-lg leading-tight">Papas extras familiares</h3>
                     <p class="text-slate-400 text-sm mb-3">Orden de papas fritas familiares 350gr</p>
-                    <span class="text-orange-400 font-mono font-bold text-xl">$40.00</span>
+                    <span class="text-orange-400 font-mono font-bold text-xl">$95.00</span>
                 </button>
 
                 <!-- Tira extra -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
-                    <span class="text-3xl mb-2 block">🍗</span
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left"
+                onclick="agregarAlCarrito('Tira extra', 30)"> <!-- Atributo para la acción -->
+                    <span class="text-3xl mb-2 block">🍗</span>
                     <h3 class="font-bold text-lg leading-tight">Tira extra</h3>
                     <p class="text-slate-400 text-sm mb-3">Tira de pollo pza</p>
                     <span class="text-orange-400 font-mono font-bold text-xl">$30.00</span>
                 </button>
 
                 <!-- Refresco -->
-                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left">
-                    <span class="text-3xl mb-2 block">🥤</span
+                <button class="group bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl transition-all hover:border-orange-500 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] active:scale-95 text-left"
+                onclick="agregarAlCarrito('Refresco', 30)"> <!-- Atributo para la acción -->
+                    <span class="text-3xl mb-2 block">🥤</span>
                     <h3 class="font-bold text-lg leading-tight">Refresco</h3>
                     <p class="text-slate-400 text-sm mb-3">Refresco Coca Cola Regular</p>
                     <span class="text-orange-400 font-mono font-bold text-xl">$30.00</span>
@@ -121,12 +129,58 @@
                     <span>TOTAL</span>
                     <span class="text-green-400">$245.00</span>
                 </div>
-                <button class="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-2xl font-black text-xl transition-all transform active:scale-95 shadow-lg shadow-orange-900/40 mt-4">
+                <button onclick="abrirModal()" class="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-2xl font-black text-xl transition-all transform active:scale-95 shadow-lg shadow-orange-900/40 mt-4">
                     REGISTRAR VENTA
                 </button>
             </div>
         </aside>
     </div>
+
+    <!-- Modal de confirmación
+
+    <div id="modal-cobro" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+        
+        <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+            <h2 class="text-2xl font-bold">Finalizar Venta</h2>
+            <button onclick="cerrarModal()" class="text-slate-500 hover:text-white text-2xl">✕</button>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <div class="text-center">
+                <p class="text-slate-400 uppercase text-xs tracking-widest">Total a Pagar</p>
+                <p id="modal-total" class="text-5xl font-black text-green-400">$0.00</p>
+            </div>
+
+            <div>
+                <p class="text-sm text-slate-400 mb-3 text-center font-bold">Paga con:</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="pagoRapido(100)" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold border border-slate-700">$100</button>
+                    <button onclick="pagoRapido(200)" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold border border-slate-700">$200</button>
+                    <button onclick="pagoRapido(500)" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold border border-slate-700">$500</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm text-slate-400">Otro monto (Efectivo):</label>
+                <input type="number" id="input-efectivo" placeholder="0.00" 
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl p-4 text-2xl text-center font-mono focus:border-orange-500 outline-none">
+            </div>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-dashed border-slate-700 text-center">
+                <p class="text-xs text-slate-500 uppercase">Su cambio:</p>
+                <p id="modal-cambio" class="text-3xl font-bold text-orange-400">$0.00</p>
+            </div>
+        </div>
+
+        <button onclick="confirmarVenta()" class="w-full bg-green-600 hover:bg-green-500 py-6 font-black text-xl uppercase tracking-widest">
+            Confirmar y Guardar
+        </button>
+    </div>
+</div>
+-->
+
+    <script src="JS/script.js"></script>
 
 </body>
 </html>
