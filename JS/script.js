@@ -64,7 +64,7 @@ botonVaciar.addEventListener('click', () => {
 });
 
 
-/* Modal 
+/* Modal */
 const modal = document.getElementById('modal-cobro');
 const inputEfectivo = document.getElementById('input-efectivo');
 
@@ -111,4 +111,3 @@ window.confirmarVenta = function() {
     actualizarInterfaz();
     cerrarModal();
 }
-*/
