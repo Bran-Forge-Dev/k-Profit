@@ -5,15 +5,29 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 p-8">
-    <h1 class="text-3xl font-bold text-orange-500 mb-6">Inventario Base</h1>
-    <div class="bg-slate-900 rounded-3xl overflow-hidden border border-slate-800">
+    <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-orange-500">Gestión de Stock</h1>
+        <button onclick="prepararNuevo()" class="bg-orange-600 px-6 py-2 rounded-xl font-bold">+ Nuevo</button>
+    </header>
+
+    <div class="bg-slate-900 rounded-3xl overflow-hidden border border-slate-800 mb-8">
         <table class="w-full text-left">
-            <thead class="bg-slate-800 text-slate-400 uppercase text-xs">
-                <tr><th class="p-6">Insumo</th><th class="p-6">Unidad</th><th class="p-6">Costo Unit.</th></tr>
+            <thead class="bg-slate-800 text-slate-400 text-xs uppercase">
+                <tr><th class="p-6">Insumo</th><th class="p-6">Unidad</th><th class="p-6 text-center">Stock Actual</th><th class="p-6 text-right">Acciones</th></tr>
             </thead>
             <tbody id="tabla-insumos"></tbody>
         </table>
     </div>
-    <script src="../JS/inventario.js"></script>
+
+    <div id="modal-insumo" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-slate-900 p-6 rounded-3xl w-full max-w-md border border-slate-800">
+            <h2 id="modal-titulo" class="text-xl font-bold mb-4">Surtir</h2>
+            <input type="text" id="insumo-nombre" class="w-full bg-slate-950 p-3 rounded-xl mb-4 border border-slate-800" placeholder="Nombre">
+            <input type="number" id="insumo-stock-nuevo" class="w-full bg-slate-950 p-3 rounded-xl mb-4 border border-slate-800" placeholder="Cantidad a sumar">
+            <button onclick="guardarInsumo()" class="w-full bg-orange-600 py-3 rounded-xl font-bold uppercase">Guardar</button>
+            <button onclick="cerrar()" class="w-full mt-2 text-slate-500 text-sm">Cerrar</button>
+        </div>
+    </div>
+    <script src="JS/inventario.js"></script>
 </body>
 </html>
