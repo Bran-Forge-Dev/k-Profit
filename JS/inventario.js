@@ -5,67 +5,17 @@ let insumos = [
     { id: 3, nombre: 'Refresco Cola 355ml', unidad: 'pza', costo: 15.00, stock: 24 }
 ];
 
-// Recetas corregidas con los gramos que mencionaste
+// Recetas con gramos corregidos
 const recetas = {
-    combo_individual: { 
-        precioVenta: 135, 
-        ing: [
-            { n: 'pollo', q: 200, l: 'Pollo (200g)' }, 
-            { n: 'papa', q: 130, l: 'Papas (130g)' }, 
-            { n: 'refresco', q: 1, l: 'Refresco (1 pza)' }
-        ] 
-    },
-    combo_mediano: { 
-        precioVenta: 245, 
-        ing: [
-            { n: 'pollo', q: 400, l: 'Pollo (400g)' }, 
-            { n: 'papa', q: 260, l: 'Papas (260g)' } 
-        ] 
-    },
-    combo_grande: { 
-        precioVenta: 315, 
-        ing: [
-            { n: 'pollo', q: 600, l: 'Pollo (600g)' }, 
-            { n: 'papa', q: 260, l: 'Papas (260g)' } 
-        ] 
-    },
-    combo_familiar: { 
-        precioVenta: 415, 
-        ing: [
-            { n: 'pollo', q: 800, l: 'Pollo (800g)' }, 
-            { n: 'papa', q: 360, l: 'Papas (360g)' } 
-        ] 
-    },
-    k_tira_extra: { 
-        precioVenta: 30, 
-        ing: [
-            { n: 'pollo', q: 50, l: 'Pollo (50g)' }
-        ] 
-    },
-    papas_medianas: { 
-        precioVenta: 40, 
-        ing: [
-            { n: 'papa', q: 130, l: 'Papas (130g)' }
-        ] 
-    },
-    papas_grandes: { 
-        precioVenta: 70, 
-        ing: [
-            { n: 'papa', q: 260, l: 'Papas (260g)' }
-        ] 
-    },
-    papas_familiares: { 
-        precioVenta: 70, 
-        ing: [
-            { n: 'papa', q: 360, l: 'Papas (360g)' }
-        ] 
-    },
-    refresco: { 
-        precioVenta: 30, 
-        ing: [
-            { n: 'refresco', q: 1, l: 'Refresco (1 pza - 355ml)' }
-        ] 
-    }
+    combo_individual: { precioVenta: 135, ing: [{ n: 'pollo', q: 200, l: 'Pollo (200g)' }, { n: 'papa', q: 130, l: 'Papas (130g)' }, { n: 'refresco', q: 1, l: 'Refresco (1 pza)' }] },
+    combo_mediano: { precioVenta: 245, ing: [{ n: 'pollo', q: 400, l: 'Pollo (400g)' }, { n: 'papa', q: 260, l: 'Papas (260g)' }] },
+    combo_grande: { precioVenta: 315, ing: [{ n: 'pollo', q: 600, l: 'Pollo (600g)' }, { n: 'papa', q: 260, l: 'Papas (260g)' }] },
+    combo_familiar: { precioVenta: 415, ing: [{ n: 'pollo', q: 800, l: 'Pollo (800g)' }, { n: 'papa', q: 360, l: 'Papas (360g)' }] },
+    k_tira_extra: { precioVenta: 30, ing: [{ n: 'pollo', q: 50, l: 'Pollo (50g)' }] },
+    papas_medianas: { precioVenta: 40, ing: [{ n: 'papa', q: 130, l: 'Papas (130g)' }] },
+    papas_grandes: { precioVenta: 70, ing: [{ n: 'papa', q: 260, l: 'Papas (260g)' }] },
+    papas_familiares: { precioVenta: 70, ing: [{ n: 'papa', q: 360, l: 'Papas (360g)' }] },
+    refresco: { precioVenta: 30, ing: [{ n: 'refresco', q: 1, l: 'Refresco (1 pza - 355ml)' }] }
 };
 
 let editandoId = null;
@@ -76,13 +26,17 @@ const modal = document.getElementById('modal-insumo');
 function actualizarResumen() {
     const pollo = insumos.find(i => i.nombre.toLowerCase().includes('pollo'));
     const papa = insumos.find(i => i.nombre.toLowerCase().includes('papa'));
-    document.getElementById('resumen-pollo-stock').innerText = pollo ? `${pollo.stock.toLocaleString()} gr` : '0 gr';
-    document.getElementById('resumen-papa-stock').innerText = papa ? `${papa.stock.toLocaleString()} gr` : '0 gr';
-    document.getElementById('resumen-total-items').innerText = `${insumos.length} Items`;
+    if(document.getElementById('resumen-pollo-stock')) 
+        document.getElementById('resumen-pollo-stock').innerText = pollo ? `${pollo.stock.toLocaleString()} gr` : '0 gr';
+    if(document.getElementById('resumen-papa-stock'))
+        document.getElementById('resumen-papa-stock').innerText = papa ? `${papa.stock.toLocaleString()} gr` : '0 gr';
+    if(document.getElementById('resumen-total-items'))
+        document.getElementById('resumen-total-items').innerText = `${insumos.length} Items`;
 }
 
 // 3. Renderizar Tabla
 window.cargarInsumos = function() {
+    if (!tbody) return;
     tbody.innerHTML = '';
     insumos.forEach(item => {
         tbody.innerHTML += `
@@ -105,28 +59,26 @@ window.cargarInsumos = function() {
     actualizarAnalisisMargen();
 }
 
-// 4. Calculadora de Márgenes (CORREGIDA)
+// 4. Calculadora de Márgenes
 window.actualizarAnalisisMargen = function() {
     const selector = document.getElementById('selector-producto-analisis');
-    if (!selector) return;
+    const contenedor = document.getElementById('desglose-receta');
+    if (!selector || !contenedor) return;
     
     const tipo = selector.value;
     const rec = recetas[tipo];
-    const contenedor = document.getElementById('desglose-receta');
     let totalCostoProduccion = 0;
     
     contenedor.innerHTML = ''; 
 
-    rec.ing.forEach(ingredienteReceta => {
-        // Busqueda más precisa del insumo
-        const insumoDB = insumos.find(ins => ins.nombre.toLowerCase().includes(ingredienteReceta.n.toLowerCase()));
-        
-        const costoCalculado = insumoDB ? insumoDB.costo * ingredienteReceta.q : 0;
+    rec.ing.forEach(ing => {
+        const insumoDB = insumos.find(ins => ins.nombre.toLowerCase().includes(ing.n.toLowerCase()));
+        const costoCalculado = insumoDB ? insumoDB.costo * ing.q : 0;
         totalCostoProduccion += costoCalculado;
         
         contenedor.innerHTML += `
             <div class="flex justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 shadow-sm">
-                <span class="text-slate-400 font-medium">${ingredienteReceta.l}</span>
+                <span class="text-slate-400 font-medium">${ing.l}</span>
                 <span class="font-mono text-white font-bold">$${costoCalculado.toFixed(2)}</span>
             </div>`;
     });
@@ -165,10 +117,13 @@ window.prepararEdicion = function(id) {
 
 window.cerrarModalInsumo = function() { modal.classList.add('hidden'); }
 
-document.getElementById('insumo-unidad').addEventListener('input', (e) => {
-    const label = document.getElementById('label-unidad-dinamica');
-    if (label) label.innerText = e.target.value || '...';
-});
+const inputUnidad = document.getElementById('insumo-unidad');
+if(inputUnidad){
+    inputUnidad.addEventListener('input', (e) => {
+        const label = document.getElementById('label-unidad-dinamica');
+        if (label) label.innerText = e.target.value || '...';
+    });
+}
 
 window.guardarInsumo = function() {
     const n = document.getElementById('insumo-nombre').value;
@@ -189,20 +144,28 @@ window.guardarInsumo = function() {
     cerrarModalInsumo();
 }
 
-// Carga inicial
-cargarInsumos();
+// --- NAVEGACIÓN ROBUSTA ---
+function marcarPaginaActiva() {
+    let currentPath = window.location.pathname.split("/").pop().toLowerCase();
+    // Manejo de index o raíz
+    if (currentPath === "" || currentPath === "index.html") currentPath = "ventas.html";
 
-// Script para marcar la página activa en el Nav
-const currentPath = window.location.pathname.split("/").pop();
-const navLinks = document.querySelectorAll('nav a');
+    const navLinks = document.querySelectorAll('nav a');
 
-navLinks.forEach(link => {
-    // Si el href del enlace coincide con el nombre del archivo actual
-    if (link.getAttribute('href').includes(currentPath)) {
-        link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
-        link.classList.remove('text-slate-400');
-    } else {
-        link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
-        link.classList.add('text-slate-400');
-    }
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href').split("/").pop().toLowerCase();
+        if (currentPath === linkPath) {
+            link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
+            link.classList.remove('text-slate-400');
+        } else {
+            link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
+            link.classList.add('text-slate-400');
+        }
+    });
+}
+
+// Inicialización única
+document.addEventListener('DOMContentLoaded', () => {
+    marcarPaginaActiva();
+    cargarInsumos();
 });

@@ -4,30 +4,36 @@ let carrito = [];
 // Elementos del DOM
 const contenedorCarrito = document.querySelector('aside .flex-1');
 const displayTotal = document.querySelector('.text-green-400');
-const botonVaciar = document.querySelector('button.text-slate-500');
+// Usamos un selector más robusto para el botón vaciar
+const botonVaciar = document.querySelector('aside button.text-slate-500');
 
-// 1. Función para actualizar la interfaz del ticket
+// --- 1. LÓGICA DEL CARRITO ---
+
 function actualizarInterfaz() {
+    if (!contenedorCarrito) return;
+    
     contenedorCarrito.innerHTML = '';
     let totalAcumulado = 0;
 
     if (carrito.length === 0) {
-        contenedorCarrito.innerHTML = '<p class="text-slate-500 italic">Selecciona un producto...</p>';
+        contenedorCarrito.innerHTML = '<p class="text-slate-500 italic text-center mt-10">Selecciona un producto...</p>';
+        displayTotal.innerText = `$0.00`;
+        return;
     }
 
     carrito.forEach((item, index) => {
         totalAcumulado += item.precio * item.cantidad;
         
         contenedorCarrito.innerHTML += `
-            <div class="flex justify-between items-center bg-slate-800/30 p-3 rounded-xl border border-slate-700/50">
+            <div class="flex justify-between items-center bg-slate-800/30 p-3 rounded-xl border border-slate-700/50 mb-2">
                 <div>
                     <p class="font-bold">${item.nombre}</p>
                     <p class="text-xs text-slate-400">${item.cantidad} x $${item.precio.toFixed(2)}</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <button onclick="cambiarCantidad(${index}, -1)" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">-</button>
+                    <button onclick="cambiarCantidad(${index}, -1)" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors">-</button>
                     <span class="font-mono font-bold">${item.cantidad}</span>
-                    <button onclick="cambiarCantidad(${index}, 1)" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">+</button>
+                    <button onclick="cambiarCantidad(${index}, 1)" class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600 transition-colors">+</button>
                 </div>
             </div>
         `;
@@ -36,10 +42,8 @@ function actualizarInterfaz() {
     displayTotal.innerText = `$${totalAcumulado.toFixed(2)}`;
 }
 
-// 2. Función para agregar productos
 window.agregarAlCarrito = function(nombre, precio) {
     const itemExistente = carrito.find(p => p.nombre === nombre);
-    
     if (itemExistente) {
         itemExistente.cantidad++;
     } else {
@@ -48,8 +52,9 @@ window.agregarAlCarrito = function(nombre, precio) {
     actualizarInterfaz();
 }
 
-// 3. Función para botones + y -
 window.cambiarCantidad = function(index, cambio) {
+    if(!carrito[index]) return;
+    
     carrito[index].cantidad += cambio;
     if (carrito[index].cantidad <= 0) {
         carrito.splice(index, 1);
@@ -57,25 +62,29 @@ window.cambiarCantidad = function(index, cambio) {
     actualizarInterfaz();
 }
 
-// 4. Vaciar carrito
-botonVaciar.addEventListener('click', () => {
-    carrito = [];
-    actualizarInterfaz();
-});
+if (botonVaciar) {
+    botonVaciar.addEventListener('click', () => {
+        if(confirm("¿Vaciar toda la orden?")) {
+            carrito = [];
+            actualizarInterfaz();
+        }
+    });
+}
 
+// --- 2. LÓGICA DEL MODAL DE COBRO ---
 
-/* Modal */
 const modal = document.getElementById('modal-cobro');
 const inputEfectivo = document.getElementById('input-efectivo');
 
-// 1. Abrir el modal y pasar el total
 window.abrirModal = function() {
     const totalActual = parseFloat(displayTotal.innerText.replace('$', ''));
     if (totalActual <= 0) return alert("Agrega productos primero");
     
     document.getElementById('modal-total').innerText = `$${totalActual.toFixed(2)}`;
     modal.classList.remove('hidden');
-    inputEfectivo.focus();
+    
+    // Pequeño delay para asegurar que el input sea visible antes del focus
+    setTimeout(() => inputEfectivo.focus(), 100);
 }
 
 window.cerrarModal = function() {
@@ -84,45 +93,64 @@ window.cerrarModal = function() {
     document.getElementById('modal-cambio').innerText = '$0.00';
 }
 
-// 2. Lógica de pago rápido (billetes y escrito)
 window.pagoRapido = function(monto) {
-    // 1. Ponemos el valor del billete en el input
     inputEfectivo.value = monto;
-    
-    // 2. ¡IMPORTANTE! Llamamos manualmente a la función de calcular el cambio
+    // Disparamos manualmente el cálculo
     calcularCambio();
 }
 
-// 3. Calcular cambio automáticamente
-inputEfectivo.addEventListener('input', calcularCambio);
+if (inputEfectivo) {
+    inputEfectivo.addEventListener('input', calcularCambio);
+}
 
 function calcularCambio() {
-    const total = parseFloat(document.getElementById('modal-total').innerText.replace('$', ''));
+    const totalStr = document.getElementById('modal-total').innerText.replace('$', '');
+    const total = parseFloat(totalStr);
     const pago = parseFloat(inputEfectivo.value) || 0;
     const cambio = pago - total;
     
     const displayCambio = document.getElementById('modal-cambio');
-    displayCambio.innerText = `$${(cambio > 0 ? cambio : 0).toFixed(2)}`;
+    if (displayCambio) {
+        displayCambio.innerText = `$${(cambio > 0 ? cambio : 0).toFixed(2)}`;
+        // Feedback visual si falta dinero
+        displayCambio.className = cambio < 0 ? "text-2xl md:text-3xl font-bold text-red-500" : "text-2xl md:text-3xl font-bold text-orange-400";
+    }
 }
 
 window.confirmarVenta = function() {
+    const total = parseFloat(displayTotal.innerText.replace('$', ''));
+    const pago = parseFloat(inputEfectivo.value) || 0;
+
+    if (pago < total) return alert("El pago es menor al total");
+
     alert("¡Venta registrada con éxito!");
-    carrito = []; // Limpiamos carrito
+    carrito = []; 
     actualizarInterfaz();
     cerrarModal();
 }
 
-// Script para marcar la página activa en el Nav
-const currentPath = window.location.pathname.split("/").pop();
-const navLinks = document.querySelectorAll('nav a');
+// --- 3. NAVEGACIÓN ACTIVA (Versión Robusta) ---
 
-navLinks.forEach(link => {
-    // Si el href del enlace coincide con el nombre del archivo actual
-    if (link.getAttribute('href').includes(currentPath)) {
-        link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
-        link.classList.remove('text-slate-400');
-    } else {
-        link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
-        link.classList.add('text-slate-400');
-    }
+function marcarPaginaActiva() {
+    let currentPath = window.location.pathname.split("/").pop().toLowerCase();
+    if (currentPath === "" || currentPath === "index.html") currentPath = "index.html";
+
+    const navLinks = document.querySelectorAll('nav a');
+
+    navLinks.forEach(link => {
+        const linkPath = link.getAttribute('href').split("/").pop().toLowerCase();
+
+        if (currentPath === linkPath) {
+            link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
+            link.classList.remove('text-slate-400');
+        } else {
+            link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
+            link.classList.add('text-slate-400');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    marcarPaginaActiva();
+    actualizarInterfaz();
 });
