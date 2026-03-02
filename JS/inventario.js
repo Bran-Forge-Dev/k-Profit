@@ -191,3 +191,18 @@ window.guardarInsumo = function() {
 
 // Carga inicial
 cargarInsumos();
+
+// Script para marcar la página activa en el Nav
+const currentPath = window.location.pathname.split("/").pop();
+const navLinks = document.querySelectorAll('nav a');
+
+navLinks.forEach(link => {
+    // Si el href del enlace coincide con el nombre del archivo actual
+    if (link.getAttribute('href').includes(currentPath)) {
+        link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
+        link.classList.remove('text-slate-400');
+    } else {
+        link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
+        link.classList.add('text-slate-400');
+    }
+});
