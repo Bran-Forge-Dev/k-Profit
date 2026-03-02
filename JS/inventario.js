@@ -14,7 +14,7 @@ const recetas = {
     k_tira_extra: { precioVenta: 30, ing: [{ n: 'pollo', q: 50, l: 'Pollo (50g)' }] },
     papas_medianas: { precioVenta: 40, ing: [{ n: 'papa', q: 130, l: 'Papas (130g)' }] },
     papas_grandes: { precioVenta: 70, ing: [{ n: 'papa', q: 260, l: 'Papas (260g)' }] },
-    papas_familiares: { precioVenta: 70, ing: [{ n: 'papa', q: 360, l: 'Papas (360g)' }] },
+    papas_familiares: { precioVenta: 95, ing: [{ n: 'papa', q: 360, l: 'Papas (360g)' }] },
     refresco: { precioVenta: 30, ing: [{ n: 'refresco', q: 1, l: 'Refresco (1 pza - 355ml)' }] }
 };
 
