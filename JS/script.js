@@ -4,7 +4,6 @@ let carrito = [];
 // Elementos del DOM
 const contenedorCarrito = document.querySelector('aside .flex-1');
 const displayTotal = document.querySelector('.text-green-400');
-// Usamos un selector más robusto para el botón vaciar
 const botonVaciar = document.querySelector('aside button.text-slate-500');
 
 // --- 1. LÓGICA DEL CARRITO ---
@@ -83,7 +82,6 @@ window.abrirModal = function() {
     document.getElementById('modal-total').innerText = `$${totalActual.toFixed(2)}`;
     modal.classList.remove('hidden');
     
-    // Pequeño delay para asegurar que el input sea visible antes del focus
     setTimeout(() => inputEfectivo.focus(), 100);
 }
 
@@ -95,7 +93,6 @@ window.cerrarModal = function() {
 
 window.pagoRapido = function(monto) {
     inputEfectivo.value = monto;
-    // Disparamos manualmente el cálculo
     calcularCambio();
 }
 
@@ -112,7 +109,6 @@ function calcularCambio() {
     const displayCambio = document.getElementById('modal-cambio');
     if (displayCambio) {
         displayCambio.innerText = `$${(cambio > 0 ? cambio : 0).toFixed(2)}`;
-        // Feedback visual si falta dinero
         displayCambio.className = cambio < 0 ? "text-2xl md:text-3xl font-bold text-red-500" : "text-2xl md:text-3xl font-bold text-orange-400";
     }
 }
@@ -129,7 +125,36 @@ window.confirmarVenta = function() {
     cerrarModal();
 }
 
-// --- 3. NAVEGACIÓN ACTIVA (Versión Robusta) ---
+// --- 3. LÓGICA DE FILTRADO Y RESALTADO (CORREGIDA) ---
+
+window.resaltarFiltro = function(categoria, botonSeleccionado) {
+    // A. Resaltado Visual de Botones
+    const botones = document.querySelectorAll('.filter-btn');
+    botones.forEach(btn => {
+        btn.classList.remove('bg-orange-600', 'text-white');
+        btn.classList.add('bg-slate-800', 'text-slate-300');
+    });
+
+    botonSeleccionado.classList.add('bg-orange-600', 'text-white');
+    botonSeleccionado.classList.remove('bg-slate-800', 'text-slate-300');
+
+    // B. Filtrado Real de Tarjetas de Producto
+    const productos = document.querySelectorAll('.producto-card');
+    productos.forEach(card => {
+        if (categoria === 'todos') {
+            card.classList.remove('hidden');
+        } else {
+            // Verifica si la tarjeta tiene la clase de la categoría (paquetes, extras, bebidas)
+            if (card.classList.contains(categoria)) {
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+        }
+    });
+}
+
+// --- 4. NAVEGACIÓN ACTIVA (NAV PRINCIPAL) ---
 
 function marcarPaginaActiva() {
     let currentPath = window.location.pathname.split("/").pop().toLowerCase();
