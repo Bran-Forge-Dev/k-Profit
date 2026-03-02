@@ -148,7 +148,7 @@ window.guardarInsumo = function() {
 function marcarPaginaActiva() {
     let currentPath = window.location.pathname.split("/").pop().toLowerCase();
     // Manejo de index o raíz
-    if (currentPath === "" || currentPath === "index.html") currentPath = "ventas.html";
+    if (currentPath === "" || currentPath === "index.html") currentPath = "index.html";
 
     const navLinks = document.querySelectorAll('nav a');
 
@@ -159,7 +159,7 @@ function marcarPaginaActiva() {
             link.classList.remove('text-slate-400');
         } else {
             link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
-            link.classList.add('text-slate-400');
+            link.classList.add('text-slate-400'); 
         }
     });
 }
