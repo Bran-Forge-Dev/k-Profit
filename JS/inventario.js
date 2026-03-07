@@ -1,171 +1,231 @@
-// 1. Datos iniciales - COSTOS ACTUALIZADOS
-let insumos = [
-    { id: 1, nombre: 'Pollo (Tiras)', unidad: 'gr', costo: 0.165, stock: 5000 },
-    { id: 2, nombre: 'Papa Blanca', unidad: 'gr', costo: 0.0433, stock: 3000 },
-    { id: 3, nombre: 'Refresco Cola 355ml', unidad: 'pza', costo: 15.00, stock: 24 }
-];
+/**
+ * 1. CONFIGURACIÓN Y ESTADO GLOBAL
+ * Usamos var para permitir la coexistencia global sin errores de "already declared".
+ */
+var insumosDB = [];
+var recetasDB = [];
+var editandoId = null;
 
-// Recetas con gramos corregidos
-const recetas = {
-    combo_individual: { precioVenta: 135, ing: [{ n: 'pollo', q: 200, l: 'Pollo (200g)' }, { n: 'papa', q: 130, l: 'Papas (130g)' }, { n: 'refresco', q: 1, l: 'Refresco (1 pza)' }] },
-    combo_mediano: { precioVenta: 245, ing: [{ n: 'pollo', q: 400, l: 'Pollo (400g)' }, { n: 'papa', q: 260, l: 'Papas (260g)' }] },
-    combo_grande: { precioVenta: 315, ing: [{ n: 'pollo', q: 600, l: 'Pollo (600g)' }, { n: 'papa', q: 260, l: 'Papas (260g)' }] },
-    combo_familiar: { precioVenta: 415, ing: [{ n: 'pollo', q: 800, l: 'Pollo (800g)' }, { n: 'papa', q: 360, l: 'Papas (360g)' }] },
-    k_tira_extra: { precioVenta: 30, ing: [{ n: 'pollo', q: 50, l: 'Pollo (50g)' }] },
-    papas_medianas: { precioVenta: 40, ing: [{ n: 'papa', q: 130, l: 'Papas (130g)' }] },
-    papas_grandes: { precioVenta: 70, ing: [{ n: 'papa', q: 260, l: 'Papas (260g)' }] },
-    papas_familiares: { precioVenta: 95, ing: [{ n: 'papa', q: 360, l: 'Papas (360g)' }] },
-    refresco: { precioVenta: 30, ing: [{ n: 'refresco', q: 1, l: 'Refresco (1 pza - 355ml)' }] }
-};
+// Referencias al DOM
+var tbody = document.getElementById('tabla-insumos');
+var modalInsumo = document.getElementById('modal-insumo');
+var selectorProducto = document.getElementById('selector-producto-analisis');
 
-let editandoId = null;
-const tbody = document.getElementById('tabla-insumos');
-const modal = document.getElementById('modal-insumo');
+/**
+ * 2. CARGA DE DATOS DESDE SUPABASE
+ * Sincroniza insumos, recetas y productos para el sistema de inventario.
+ */
+async function cargarDatosInventario() {
+    // A. Traer Insumos
+    const { data: insumos, error: errI } = await supabase
+        .from('insumos')
+        .select('*')
+        .order('nombre', { ascending: true });
 
-// 2. Resumen Superior
-function actualizarResumen() {
-    const pollo = insumos.find(i => i.nombre.toLowerCase().includes('pollo'));
-    const papa = insumos.find(i => i.nombre.toLowerCase().includes('papa'));
-    if(document.getElementById('resumen-pollo-stock')) 
-        document.getElementById('resumen-pollo-stock').innerText = pollo ? `${pollo.stock.toLocaleString()} gr` : '0 gr';
-    if(document.getElementById('resumen-papa-stock'))
-        document.getElementById('resumen-papa-stock').innerText = papa ? `${papa.stock.toLocaleString()} gr` : '0 gr';
-    if(document.getElementById('resumen-total-items'))
-        document.getElementById('resumen-total-items').innerText = `${insumos.length} Items`;
+    // B. Traer Recetas vinculadas a sus insumos para obtener costos reales
+    const { data: recetas, error: errR } = await supabase
+        .from('recetas')
+        .select(`
+            id,
+            cantidad_necesaria,
+            producto_id,
+            insumos (nombre, costo_unitario, unidad)
+        `);
+
+    // C. Traer Productos para llenar el selector de márgenes
+    const { data: productos, error: errP } = await supabase
+        .from('productos')
+        .select('id, nombre')
+        .order('nombre', { ascending: true });
+
+    if (errI || errR || errP) return console.error("Error cargando datos de inventario");
+
+    insumosDB = insumos || [];
+    recetasDB = recetas || [];
+
+    // Llenar selector dinámicamente
+    if (selectorProducto) {
+        selectorProducto.innerHTML = '<option value="">Selecciona un producto...</option>' + 
+            productos.map(p => `<option value="${p.id}">${p.nombre}</option>`).join('');
+    }
+
+    renderizarTablaInsumos();
+    actualizarResumenSuperior();
+    actualizarAnalisisMargen();
 }
 
-// 3. Renderizar Tabla
-window.cargarInsumos = function() {
+/**
+ * 3. RENDERIZADO DE INTERFAZ (TABLA Y RESUMEN)
+ */
+function renderizarTablaInsumos() {
     if (!tbody) return;
     tbody.innerHTML = '';
-    insumos.forEach(item => {
+
+    insumosDB.forEach(item => {
         tbody.innerHTML += `
-            <tr class="border-b border-slate-800 hover:bg-slate-800/20 transition-colors">
+            <tr class="border-b border-slate-800 hover:bg-slate-800/20 transition-colors text-sm">
                 <td class="p-6 font-bold text-white tracking-tight">${item.nombre}</td>
                 <td class="p-6 text-slate-500 italic uppercase text-xs tracking-widest">${item.unidad}</td>
                 <td class="p-6 text-center">
                     <span class="bg-slate-950 px-3 py-1 rounded-full font-mono text-orange-400 border border-orange-500/20 shadow-inner">
-                        ${item.stock.toLocaleString()} <small class="text-[9px] uppercase">${item.unidad}</small>
+                        ${item.stock_actual.toLocaleString()} <small class="text-[9px] uppercase">${item.unidad}</small>
                     </span>
                 </td>
-                <td class="p-6 font-mono text-green-400 text-center font-bold">$${item.costo.toFixed(4)}</td>
+                <td class="p-6 font-mono text-green-400 text-center font-bold">$${parseFloat(item.costo_unitario).toFixed(4)}</td>
                 <td class="p-6 text-right">
-                    <button onclick="prepararEdicion(${item.id})" class="bg-slate-800 hover:bg-orange-600 text-orange-100 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all">SURTIR / EDITAR</button>
+                    <button onclick="prepararEdicion('${item.id}')" class="bg-slate-800 hover:bg-orange-600 text-orange-100 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all">SURTIR / EDITAR</button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
-    actualizarResumen();
-    actualizarAnalisisMargen();
 }
 
-// 4. Calculadora de Márgenes
-window.actualizarAnalisisMargen = function() {
-    const selector = document.getElementById('selector-producto-analisis');
+function actualizarResumenSuperior() {
+    // Buscamos stocks específicos para los cuadros superiores (Filtro flexible)
+    const pollo = insumosDB.find(i => i.nombre.toLowerCase().includes('pollo'));
+    const papa = insumosDB.find(i => i.nombre.toLowerCase().includes('papa'));
+
+    if(document.getElementById('resumen-pollo-stock')) 
+        document.getElementById('resumen-pollo-stock').innerText = pollo ? `${pollo.stock_actual.toLocaleString()} gr` : '0 gr';
+    if(document.getElementById('resumen-papa-stock'))
+        document.getElementById('resumen-papa-stock').innerText = papa ? `${papa.stock_actual.toLocaleString()} gr` : '0 gr';
+    if(document.getElementById('resumen-total-items'))
+        document.getElementById('resumen-total-items').innerText = `${insumosDB.length} Items`;
+}
+
+/**
+ * 4. ANÁLISIS DE MARGEN
+ * Calcula costos basados en los gramos exactos de la receta.
+ */
+window.actualizarAnalisisMargen = async function() {
     const contenedor = document.getElementById('desglose-receta');
-    if (!selector || !contenedor) return;
+    if (!selectorProducto || !contenedor) return;
     
-    const tipo = selector.value;
-    const rec = recetas[tipo];
+    const productoId = selectorProducto.value;
+    if (!productoId) {
+        contenedor.innerHTML = '';
+        document.getElementById('calc-precio-venta').innerText = '$0.00';
+        document.getElementById('calc-ganancia-neta').innerText = '$0.00';
+        document.getElementById('calc-porcentaje').innerText = '0%';
+        return;
+    }
+
+    // Traer precio de venta actual del producto seleccionado
+    const { data: producto } = await supabase.from('productos').select('precio_venta').eq('id', productoId).single();
+    
+    // Filtrar los insumos (pollo, papas, soda) que componen este producto
+    const ingredientes = recetasDB.filter(r => r.producto_id === productoId);
+    
     let totalCostoProduccion = 0;
-    
     contenedor.innerHTML = ''; 
 
-    rec.ing.forEach(ing => {
-        const insumoDB = insumos.find(ins => ins.nombre.toLowerCase().includes(ing.n.toLowerCase()));
-        const costoCalculado = insumoDB ? insumoDB.costo * ing.q : 0;
+    ingredientes.forEach(ing => {
+        // Multiplica costo unitario por gramos/piezas fijas de la receta
+        const costoCalculado = ing.insumos.costo_unitario * ing.cantidad_necesaria;
         totalCostoProduccion += costoCalculado;
         
+        // Renderizado del desglose visual idéntico a la imagen
         contenedor.innerHTML += `
-            <div class="flex justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 shadow-sm">
-                <span class="text-slate-400 font-medium">${ing.l}</span>
-                <span class="font-mono text-white font-bold">$${costoCalculado.toFixed(2)}</span>
+            <div class="flex justify-between items-center p-4 bg-slate-950 border border-slate-800 rounded-2xl mb-3 shadow-sm">
+                <span class="text-white font-bold">${ing.insumos.nombre} (${ing.cantidad_necesaria}${ing.insumos.unidad || 'gr'})</span>
+                <span class="font-mono text-white font-bold tracking-tighter">$${costoCalculado.toFixed(2)}</span>
             </div>`;
     });
 
-    const gananciaBruta = rec.precioVenta - totalCostoProduccion;
-    const porcentajeMargen = (gananciaBruta / rec.precioVenta) * 100;
+    const gananciaBruta = producto.precio_venta - totalCostoProduccion;
+    const porcentajeUtilidad = producto.precio_venta > 0 ? (gananciaBruta / producto.precio_venta) * 100 : 0;
 
-    document.getElementById('calc-precio-venta').innerText = `$${rec.precioVenta.toFixed(2)}`;
+    // Actualizar visualización del margen y utilidad
+    document.getElementById('calc-precio-venta').innerText = `$${parseFloat(producto.precio_venta).toFixed(2)}`;
     document.getElementById('calc-ganancia-neta').innerText = `$${gananciaBruta.toFixed(2)}`;
-    document.getElementById('calc-porcentaje').innerText = `${porcentajeMargen.toFixed(0)}%`;
+    
+    const elUtilidad = document.getElementById('calc-porcentaje');
+    if(elUtilidad) {
+        elUtilidad.innerText = `${porcentajeUtilidad.toFixed(0)}%`;
+        elUtilidad.className = "text-green-400 font-black not-italic text-xl ml-2";
+    }
 }
 
-// 5. Gestión de Modal
+/**
+ * 5. GESTIÓN DE MODAL (SURTIR / NUEVO)
+ */
 window.prepararNuevo = function() {
     editandoId = null;
     document.getElementById('insumo-nombre').value = '';
     document.getElementById('insumo-unidad').value = 'gr';
     document.getElementById('insumo-costo').value = '';
-    document.getElementById('insumo-stock-nuevo').value = '';
+    document.getElementById('insumo-stock-nuevo').value = ''; 
     document.getElementById('label-unidad-dinamica').innerText = 'gr';
     document.getElementById('modal-titulo').innerText = "Nuevo Insumo";
-    modal.classList.remove('hidden');
+    modalInsumo.classList.remove('hidden');
 }
 
 window.prepararEdicion = function(id) {
-    const item = insumos.find(i => i.id === id);
+    const item = insumosDB.find(i => i.id === id);
     editandoId = id;
     document.getElementById('insumo-nombre').value = item.nombre;
     document.getElementById('insumo-unidad').value = item.unidad;
-    document.getElementById('insumo-costo').value = item.costo;
+    document.getElementById('insumo-costo').value = item.costo_unitario;
     document.getElementById('insumo-stock-nuevo').value = ''; 
     document.getElementById('label-unidad-dinamica').innerText = item.unidad;
     document.getElementById('modal-titulo').innerText = `Surtir ${item.nombre}`;
-    modal.classList.remove('hidden');
+    modalInsumo.classList.remove('hidden');
 }
 
-window.cerrarModalInsumo = function() { modal.classList.add('hidden'); }
+window.cerrarModalInsumo = function() { modalInsumo.classList.add('hidden'); }
 
-const inputUnidad = document.getElementById('insumo-unidad');
-if(inputUnidad){
-    inputUnidad.addEventListener('input', (e) => {
-        const label = document.getElementById('label-unidad-dinamica');
-        if (label) label.innerText = e.target.value || '...';
-    });
-}
-
-window.guardarInsumo = function() {
+window.guardarInsumo = async function() {
     const n = document.getElementById('insumo-nombre').value;
     const u = document.getElementById('insumo-unidad').value.toLowerCase();
     const c = parseFloat(document.getElementById('insumo-costo').value) || 0;
     const s = parseFloat(document.getElementById('insumo-stock-nuevo').value) || 0;
 
+    if (!n) return alert("El nombre es obligatorio");
+
     if (editandoId) {
-        const i = insumos.findIndex(item => item.id === editandoId);
-        insumos[i].stock += s;
-        insumos[i].nombre = n; 
-        insumos[i].unidad = u; 
-        insumos[i].costo = c;
+        // Surtir sumando manualmente al stock actual
+        const itemActual = insumosDB.find(i => i.id === editandoId);
+        const { error } = await supabase
+            .from('insumos')
+            .update({ 
+                nombre: n, 
+                unidad: u, 
+                costo_unitario: c, 
+                stock_actual: itemActual.stock_actual + s 
+            })
+            .eq('id', editandoId);
+        if (error) alert("Error al actualizar");
     } else {
-        insumos.push({ id: Date.now(), nombre: n, unidad: u, costo: c, stock: s });
+        // Registro de un insumo nuevo
+        await supabase.from('insumos').insert([{ nombre: n, unidad: u, costo_unitario: c, stock_actual: s }]);
     }
-    cargarInsumos();
-    cerrarModalInsumo();
+
+    modalInsumo.classList.add('hidden');
+    cargarDatosInventario();
 }
 
-// --- NAVEGACIÓN ROBUSTA ---
+/**
+ * 6. NAVEGACIÓN Y CARGA INICIAL
+ */
 function marcarPaginaActiva() {
-    let currentPath = window.location.pathname.split("/").pop().toLowerCase();
-    // Manejo de index o raíz
-    if (currentPath === "" || currentPath === "index.html") currentPath = "index.html";
-
-    const navLinks = document.querySelectorAll('nav a');
-
-    navLinks.forEach(link => {
+    let currentPath = window.location.pathname.split("/").pop().toLowerCase() || "index.html";
+    document.querySelectorAll('nav a').forEach(link => {
         const linkPath = link.getAttribute('href').split("/").pop().toLowerCase();
         if (currentPath === linkPath) {
             link.classList.add('text-orange-500', 'border-b-2', 'border-orange-500');
             link.classList.remove('text-slate-400');
-        } else {
-            link.classList.remove('text-orange-500', 'border-b-2', 'border-orange-500');
-            link.classList.add('text-slate-400'); 
         }
     });
 }
 
-// Inicialización única
 document.addEventListener('DOMContentLoaded', () => {
     marcarPaginaActiva();
-    cargarInsumos();
+    cargarDatosInventario();
+
+    const inputUnidad = document.getElementById('insumo-unidad');
+    if(inputUnidad){
+        inputUnidad.addEventListener('input', (e) => {
+            const label = document.getElementById('label-unidad-dinamica');
+            if (label) label.innerText = e.target.value || '...';
+        });
+    }
 });

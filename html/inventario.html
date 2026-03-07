@@ -3,129 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-Profit | Inventario</title>
+    <title>K-Profit | Inventario Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .table-container { border-radius: 2rem; overflow: hidden; }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 font-sans p-4 md:p-8 overflow-x-hidden">
 
-    <nav class="bg-slate-900 border-b border-slate-800 p-4 mb-8 flex gap-6 justify-center rounded-2xl shadow-lg">
-        <a href="../index.html" class="text-slate-400 hover:text-orange-500 font-bold transition-colors">🍗 Ventas</a>
-        <a href="inventario.html" class="text-slate-400 hover:text-orange-500 font-bold transition-colors">📦 Inventario</a>
-        <a href="finanzas.html" class="text-slate-400 hover:text-orange-500 font-bold transition-colors">📊 Finanzas</a>
+    <nav class="bg-slate-900 border-b border-slate-800 p-4 mb-8 flex flex-wrap gap-4 md:gap-6 justify-center rounded-2xl shadow-lg">
+        <a href="../index.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">🍗 Ventas</a>
+        <a href="inventarios.html" class="text-orange-500 font-bold border-b-2 border-orange-500 transition-all text-sm md:text-base">📦 Inventario</a>
+        <a href="finanzas.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">📊 Finanzas</a>
+        <a href="configuracion.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">⚙️ Configuración</a>
     </nav>
 
-    <header class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-orange-500">Inventario 📦</h1>
-            <p class="text-slate-400">Control de stock y costos base</p>
-        </div>
-        <button onclick="prepararNuevo()" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-2xl font-bold transition-all active:scale-95">
-            + Agregar Insumo
-        </button>
-    </header>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-center">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl border-b-4 border-orange-500">
-            <p class="text-xs text-slate-500 uppercase font-bold mb-2 tracking-widest">Stock Pollo</p>
-            <p id="resumen-pollo-stock" class="text-4xl font-black text-white">0 gr</p>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl border-b-4 border-orange-500">
-            <p class="text-xs text-slate-500 uppercase font-bold mb-2 tracking-widest">Stock Papa</p>
-            <p id="resumen-papa-stock" class="text-4xl font-black text-white">0 gr</p>
-        </div>
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl border-b-4 border-slate-700">
-            <p class="text-xs text-slate-500 uppercase font-bold mb-2 tracking-widest">Total Insumos</p>
-            <p id="resumen-total-items" class="text-4xl font-black text-orange-500">0 Items</p>
-        </div>
-    </div>
-
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl mb-10">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-800/50 text-slate-400 text-xs uppercase tracking-widest font-bold">
-                        <th class="p-6">Insumo</th>
-                        <th class="p-6">Unidad</th>
-                        <th class="p-6 text-center">Stock Actual</th>
-                        <th class="p-6 text-center">Costo Unit.</th>
-                        <th class="p-6 text-right">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-insumos">
-                    </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="bg-slate-900 border-2 border-orange-500/30 rounded-3xl p-6 md:p-8 shadow-2xl mb-10">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-            <h2 class="text-2xl font-bold text-orange-500">📊 Análisis de Margen</h2>
-            <select id="selector-producto-analisis" onchange="actualizarAnalisisMargen()" class="bg-slate-950 border-2 border-orange-500/50 text-white p-3 rounded-xl outline-none font-bold cursor-pointer">
-            <!-- Configuración de combos -->
-                <option value="combo_individual">Combo Individual (200g Pollo)</option>
-                <option value="combo_mediano">Combo Mediano (400g Pollo)</option>
-                <option value="combo_grande">Combo Grande (600g Pollo)</option>
-                <option value="combo_familiar">Combo Familiar (800g Pollo)</option>
-
-                <!-- Configuración de complementos -->
-                <option value="k_tira_extra">Tira extra (50g Pollo)</option>
-                <option value="papas_medianas">Orden de Papas medianas (130g)</option>
-                <option value="papas_grandes">Orden de Papas grandes (260g)</option>
-                <option value="papas_familiares">Orden de Papas grandes familiares (360g)</option>
-                <option value="refresco">Solo Refresco (1 pza - 355ml)</option>
-            </select>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div id="desglose-receta" class="space-y-4 text-sm md:text-base"></div>
-            <div class="bg-orange-600/10 rounded-3xl p-6 border border-orange-600/20 text-center flex flex-col justify-center">
-                <p class="text-orange-500 uppercase text-[10px] font-black tracking-widest mb-2">Precio de Venta</p>
-                <p id="calc-precio-venta" class="text-5xl font-black mb-4 text-white">$0.00</p>
-                <div class="bg-orange-600 text-white p-4 rounded-2xl shadow-lg">
-                    <p class="text-sm font-bold uppercase opacity-80 text-orange-100">Ganancia Bruta</p>
-                    <p id="calc-ganancia-neta" class="text-3xl font-black">$0.00</p>
-                </div>
-                <p class="mt-4 text-slate-400 text-sm italic underline decoration-green-500/40 decoration-2">
-                    Utilidad: <span id="calc-porcentaje" class="text-green-400 font-bold">0%</span>
-                </p>
+    <main class="max-w-6xl mx-auto space-y-8">
+        
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-black text-orange-500 italic uppercase tracking-tighter">Inventario 📦</h1>
+                <p class="text-slate-500 text-xs md:text-sm font-medium italic">Control de stock y costos base en tiempo real</p>
             </div>
-        </div>
-    </div>
+            <button onclick="prepararNuevo()" class="w-full md:w-auto bg-orange-600 hover:bg-orange-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-orange-900/20 active:scale-95">
+                + Agregar Insumo
+            </button>
+        </header>
 
-    <div id="modal-insumo" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-                <h2 id="modal-titulo" class="text-xl font-bold text-orange-500 font-mono italic">Gestionar Insumo</h2>
-                <button onclick="cerrarModalInsumo()" class="text-slate-500 hover:text-white text-2xl font-bold">✕</button>
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 text-center">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] border-b-4 border-orange-500 shadow-xl">
+                <p class="text-[10px] text-slate-500 uppercase font-black mb-2 tracking-[0.2em]">Stock Pollo</p>
+                <p id="resumen-pollo-stock" class="text-3xl md:text-4xl font-black text-white font-mono">0 gr</p>
             </div>
-            <div class="p-6 space-y-5">
-                <div>
-                    <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Nombre del Insumo</label>
-                    <input type="text" id="insumo-nombre" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 outline-none text-white focus:border-orange-500 transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] border-b-4 border-orange-500 shadow-xl">
+                <p class="text-[10px] text-slate-500 uppercase font-black mb-2 tracking-[0.2em]">Stock Papa</p>
+                <p id="resumen-papa-stock" class="text-3xl md:text-4xl font-black text-white font-mono">0 gr</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] border-b-4 border-slate-700 shadow-xl sm:col-span-2 lg:col-span-1">
+                <p class="text-[10px] text-slate-500 uppercase font-black mb-2 tracking-[0.2em]">Total Insumos</p>
+                <p id="resumen-total-items" class="text-3xl md:text-4xl font-black text-orange-500 font-mono">0 Items</p>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto hide-scrollbar">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead>
+                        <tr class="bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                            <th class="p-6">Insumo</th>
+                            <th class="p-6">Unidad</th>
+                            <th class="p-6 text-center">Stock Actual</th>
+                            <th class="p-6 text-center">Costo Unit.</th>
+                            <th class="p-6 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-insumos" class="divide-y divide-slate-800/50">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border-2 border-orange-500/20 rounded-[2.5rem] p-6 md:p-10 shadow-2xl">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+                <h2 class="text-2xl font-black text-orange-500 italic uppercase tracking-tighter flex items-center gap-2">
+                    <span class="w-8 h-1 bg-orange-600 rounded-full"></span> Análisis de Margen
+                </h2>
+                <select id="selector-producto-analisis" onchange="actualizarAnalisisMargen()" 
+                    class="w-full md:w-auto bg-slate-950 border-2 border-orange-500/50 text-white p-4 rounded-2xl outline-none font-bold cursor-pointer transition-all focus:border-orange-500">
+                    <option value="">Cargando productos...</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20">
+                <div id="desglose-receta" class="space-y-4">
+                    </div>
+                
+                <div class="bg-orange-600/5 rounded-[2rem] p-8 border border-orange-600/20 text-center flex flex-col justify-center space-y-6">
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Unidad (gr/pza)</label>
-                        <input type="text" id="insumo-unidad" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 outline-none text-white focus:border-orange-500 text-center">
+                        <p class="text-slate-500 uppercase text-[10px] font-black tracking-widest mb-2">Precio de Venta Sugerido</p>
+                        <p id="calc-precio-venta" class="text-5xl md:text-6xl font-black text-white font-mono">$0.00</p>
                     </div>
-                    <div>
-                        <label class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Costo Unit. ($)</label>
-                        <input type="number" id="insumo-costo" step="0.0001" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mt-1 outline-none text-white font-mono focus:border-orange-500 text-center">
+                    <div class="bg-orange-600 text-white p-6 rounded-3xl shadow-xl transform transition hover:scale-105">
+                        <p class="text-xs font-black uppercase opacity-80 tracking-widest mb-1">Ganancia Bruta</p>
+                        <p id="calc-ganancia-neta" class="text-4xl font-black font-mono">$0.00</p>
+                    </div>
+                    <p class="text-slate-400 text-sm italic">
+                        Margen de Utilidad: <span id="calc-porcentaje" class="text-green-400 font-black not-italic text-xl ml-2">0%</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal-insumo" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="p-6 md:p-8 border-b border-slate-800 flex justify-between items-center">
+                <h2 id="modal-titulo" class="text-xl font-black text-orange-500 italic uppercase tracking-tighter">Gestionar Insumo</h2>
+                <button onclick="cerrarModalInsumo()" class="text-slate-500 hover:text-white text-2xl transition-colors">✕</button>
+            </div>
+            
+            <div class="p-6 md:p-8 space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Nombre del Insumo</label>
+                    <input type="text" id="insumo-nombre" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 outline-none text-white focus:border-orange-500 transition-all font-bold">
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Unidad (gr / pza)</label>
+                        <input type="text" id="insumo-unidad" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 outline-none text-white focus:border-orange-500 text-center font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-slate-500 uppercase font-black tracking-widest ml-1">Costo Unitario ($)</label>
+                        <input type="number" id="insumo-costo" step="0.0001" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 outline-none text-white font-mono focus:border-orange-500 text-center font-bold">
                     </div>
                 </div>
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                    <label class="text-xs text-orange-500 uppercase font-bold tracking-widest block text-center mb-2 italic">Surtir Stock (+)</label>
-                    <div class="flex items-center justify-center gap-2">
-                        <input type="number" id="insumo-stock-nuevo" placeholder="0" class="w-full bg-transparent text-3xl font-black p-2 outline-none text-white text-center border-b border-slate-800 focus:border-orange-500 transition-all">
-                        <span id="label-unidad-dinamica" class="text-slate-500 font-bold uppercase text-xl">gr</span>
+
+                <div class="bg-slate-950 p-6 rounded-3xl border border-slate-800 text-center">
+                    <label class="text-xs text-orange-500 uppercase font-black tracking-widest mb-4 block italic underline decoration-2 underline-offset-4">Surtir Stock Nuevo</label>
+                    <div class="flex items-center justify-center gap-4">
+                        <input type="number" id="insumo-stock-nuevo" placeholder="0" class="w-1/2 bg-transparent text-4xl font-black outline-none text-white text-center border-b-2 border-slate-800 focus:border-orange-500 transition-all font-mono">
+                        <span id="label-unidad-dinamica" class="text-slate-600 font-black uppercase text-2xl">gr</span>
                     </div>
                 </div>
             </div>
-            <button onclick="guardarInsumo()" class="w-full bg-orange-600 hover:bg-orange-500 py-6 font-black text-xl uppercase tracking-tighter transition-all active:brightness-125">
-                Guardar Cambios
+            
+            <button onclick="guardarInsumo()" class="w-full bg-orange-600 hover:bg-orange-500 py-6 md:py-8 font-black text-xl uppercase tracking-widest transition-all active:brightness-125 text-white">
+                Guardar y Actualizar
             </button>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../JS/supabase-config.js"></script>
     <script src="../JS/inventario.js"></script>
 </body>
 </html>
