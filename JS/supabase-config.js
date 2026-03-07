@@ -4,5 +4,3 @@ var supabaseKey = 'sb_publishable_KTUD6IxK7g2zSZIJr-vnPg_ww0z2nlZ'; // Es la "An
 
 // Inicializamos el cliente de Supabase
 var supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-// Nota: Asegúrate de incluir el script de Supabase en tu HTML antes que este archivo
