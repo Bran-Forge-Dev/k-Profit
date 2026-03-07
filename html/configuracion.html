@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Profit | Panel de Administración</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tabla-contenedor { border-radius: 2rem; overflow: hidden; border: 1px solid #1e293b; }
+        input, select, textarea { transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 p-4 md:p-8 overflow-x-hidden">
+
+    <nav class="bg-slate-900 border-b border-slate-800 p-4 mb-8 flex flex-wrap gap-4 md:gap-6 justify-center rounded-2xl shadow-lg">
+        <a href="../index.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">🍗 Ventas</a>
+        <a href="inventarios.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">📦 Inventario</a>
+        <a href="finanzas.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">📊 Finanzas</a>
+        <a href="configuracion.html" class="text-orange-500 font-bold border-b-2 border-orange-500 transition-all text-sm md:text-base">⚙️ Configuración</a>
+    </nav>
+
+    <main class="max-w-5xl mx-auto space-y-8">
+        
+        <header class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-black text-white italic uppercase tracking-tighter">Administrar Productos</h1>
+                <p class="text-slate-500 text-xs md:text-sm font-medium">Crea, edita o elimina productos de tu catálogo en la nube</p>
+            </div>
+            <button onclick="abrirModal()" class="w-full md:w-auto bg-orange-600 hover:bg-orange-500 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all active:scale-95">
+                + Nuevo Producto
+            </button>
+        </header>
+
+        <section class="tabla-contenedor bg-slate-900 shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto hide-scrollbar">
+                <table class="w-full text-left min-w-[700px]">
+                    <thead class="bg-slate-800/50 text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                        <tr>
+                            <th class="p-6">Prod / Icono</th>
+                            <th class="p-6">Descripción</th>
+                            <th class="p-6">Categoría</th>
+                            <th class="p-6">Precio Venta</th>
+                            <th class="p-6 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-productos" class="divide-y divide-slate-800/50">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal-form" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 p-6 md:p-10 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] hide-scrollbar">
+            
+            <header class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-black text-orange-500 uppercase italic tracking-tighter">Datos del Producto</h2>
+                <p class="text-slate-500 text-xs uppercase font-bold tracking-widest mt-1">Configuración de catálogo</p>
+            </header>
+            
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div class="sm:col-span-1">
+                        <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Icono</label>
+                        <input type="text" id="p-icono" placeholder="🍔" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white text-center text-2xl">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Nombre Completo</label>
+                        <input type="text" id="p-nombre" placeholder="ej: Combo Familiar" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Descripción (Detalles)</label>
+                    <textarea id="p-descripcion" rows="2" placeholder="ej: 3 tiras + papas + refresco" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-medium text-slate-300 text-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Categoría</label>
+                        <select id="p-categoria" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-slate-400 appearance-none cursor-pointer">
+                            <option value="paquetes">Paquetes / Combos</option>
+                            <option value="extras">Extras / Entradas</option>
+                            <option value="bebidas">Bebidas / Refrescos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Precio Venta ($)</label>
+                        <input type="number" id="p-precio" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white font-mono text-xl">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col sm:flex-row gap-4">
+                <button onclick="guardarNuevoProducto()" class="flex-1 bg-orange-600 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-orange-500 active:scale-95 transition-all text-white shadow-lg shadow-orange-900/20">
+                    Guardar Producto
+                </button>
+                <button onclick="cerrarModal()" class="flex-1 bg-slate-800 py-5 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-slate-700 transition-all text-slate-400">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../JS/supabase-config.js"></script>
+    <script src="../JS/configuracion.js"></script>
+</body>
+</html>
