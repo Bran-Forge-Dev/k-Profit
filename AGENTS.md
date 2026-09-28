@@ -33,8 +33,9 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 - El entorno **demo comparte el proyecto de prod**: es solo un usuario más
   (`demo@kprofit.app`) cuyos datos quedan aislados por RLS. Las credenciales
   del proyecto se toman del bloque `prod` en `supabase-config.js`.
-- `supabase/demo-setup.sql` Sección B: datos semilla para el usuario demo
-  (requiere pegar su UUID). Sección A es solo referencia de esquema.
+- `supabase/setup.sql`: Sección A = drop + esquema + RLS (**destructivo,
+  borra todos los datos**); Sección B = datos semilla para el UUID que
+  se pegue en `uid` (correrla por usuario).
 
 ## Convenciones de commits
 
@@ -43,7 +44,8 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 
 ## Pendiente para activar la demo
 
+- [ ] Correr `supabase/setup.sql` Sección A en el SQL Editor (borra y recrea las tablas)
 - [ ] Crear el usuario demo en Authentication > Users (Auto Confirm)
-- [ ] Correr `supabase/demo-setup.sql` Sección B con su UUID
+- [ ] Correr Sección B con el UUID del usuario demo
 - [ ] Ajustar `demoEmail`/`demoPassword` en `ENVIRONMENTS.demo`
 - [ ] Desplegar el sitio demo (hostname con "demo" lo detecta solo)

@@ -1,27 +1,37 @@
 -- ============================================================
--- K-PROFIT · DATOS SEMILLA DEL USUARIO DEMO
+-- K-PROFIT · SETUP COMPLETO DE BASE DE DATOS
 -- ============================================================
--- La demo vive en el MISMO proyecto Supabase que prod; el aislamiento
--- lo da el RLS por user_id. Pasos:
---   1. En Authentication > Users crea el usuario demo
+-- ⚠️ DESTRUCTIVO: la SECCIÓN A borra y recrea todas las tablas dev_*.
+-- Todos los datos existentes se pierden. Los usuarios de Auth NO se
+-- tocan.
+--
+-- Pasos en el proyecto de Supabase:
+--   1. Corre la SECCIÓN A (drop + esquema + RLS) en el SQL Editor.
+--   2. En Authentication > Users crea el usuario demo
 --      (ej. demo@kprofit.app / KprofitDemo2026!, marcar Auto Confirm)
 --      y copia su UUID.
---   2. Pega ese UUID en la variable `uid` de la SECCIÓN B y córrela.
---   3. Ajusta demoEmail/demoPassword en JS/supabase-config.js si usaste otros.
+--   3. Pega ese UUID en `uid` de la SECCIÓN B y córrela.
+--   4. Ajusta demoEmail/demoPassword en JS/supabase-config.js si usaste otros.
 --
--- La SECCIÓN A solo hace falta si algún día migras la demo a un
--- proyecto Supabase separado (esquema + RLS). En el proyecto actual
--- las tablas ya existen — no la corras aquí.
+-- Para sembrar datos también en TU usuario real, corre la SECCIÓN B
+-- una segunda vez con tu UUID.
 --
--- Para resetear la demo: borra las filas del usuario demo con
---   delete from dev_productos where user_id = '<uuid>';  -- (y resto de tablas)
--- y vuelve a correr la SECCIÓN B.
+-- Para resetear solo la demo: borra las filas del usuario demo y
+-- vuelve a correr la SECCIÓN B.
 -- ============================================================
 
 
--- ============ SECCIÓN A: ESQUEMA + RLS (referencia, no correr en prod) ============
+-- ============ SECCIÓN A: DROP + ESQUEMA + RLS ============
+-- El orden del drop no importa gracias a CASCADE (también elimina
+-- las políticas RLS viejas y las FK entre tablas).
 
-create table if not exists dev_productos (
+drop table if exists dev_recetas cascade;
+drop table if exists dev_ventas cascade;
+drop table if exists dev_cajas_financieras cascade;
+drop table if exists dev_productos cascade;
+drop table if exists dev_insumos cascade;
+
+create table dev_productos (
     id          uuid primary key default gen_random_uuid(),
     user_id     uuid not null references auth.users(id),
     icono       text,
@@ -32,7 +42,7 @@ create table if not exists dev_productos (
     created_at  timestamptz default now()
 );
 
-create table if not exists dev_insumos (
+create table dev_insumos (
     id            uuid primary key default gen_random_uuid(),
     user_id       uuid not null references auth.users(id),
     nombre        text not null,
@@ -42,7 +52,7 @@ create table if not exists dev_insumos (
     created_at    timestamptz default now()
 );
 
-create table if not exists dev_recetas (
+create table dev_recetas (
     id                 uuid primary key default gen_random_uuid(),
     user_id            uuid not null references auth.users(id),
     producto_id        uuid not null references dev_productos(id) on delete cascade,
@@ -51,7 +61,7 @@ create table if not exists dev_recetas (
     created_at         timestamptz default now()
 );
 
-create table if not exists dev_ventas (
+create table dev_ventas (
     id            bigint generated always as identity primary key,
     user_id       uuid not null references auth.users(id),
     total_venta   numeric not null,
@@ -61,7 +71,7 @@ create table if not exists dev_ventas (
     detalle_venta text
 );
 
-create table if not exists dev_cajas_financieras (
+create table dev_cajas_financieras (
     id              uuid primary key default gen_random_uuid(),
     user_id         uuid not null references auth.users(id),
     nombre          text,
@@ -85,11 +95,12 @@ create policy "owner" on dev_cajas_financieras for all using (auth.uid() = user_
 
 
 -- ============ SECCIÓN B: DATOS SEMILLA ============
--- Reemplaza el UUID de abajo por el del usuario demo que creaste.
+-- Reemplaza el UUID de abajo por el del usuario (demo o el tuyo)
+-- antes de correr esta sección.
 
 do $$
 declare
-    uid uuid := 'PEGA_AQUI_EL_UUID_DEL_USUARIO_DEMO';
+    uid uuid := 'PEGA_AQUI_EL_UUID_DEL_USUARIO';
 
     -- insumos
     v_pollo    uuid; v_papa uuid; v_aceite uuid; v_harina uuid;
