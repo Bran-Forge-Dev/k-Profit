@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - K-Profit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
+        <div class="text-center mb-8">
+            <div class="text-5xl mb-2">🍗</div>
+            <h1 class="text-4xl font-bold text-orange-500 italic">K-Profit</h1>
+            <p class="text-gray-400 mt-2">Sistema Integral de Control</p>
+            <span id="env-badge" class="hidden inline-block mt-3 px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full">Modo Demo</span>
+        </div>
+
+        <div id="auth-container">
+            <h2 id="auth-title" class="text-2xl font-semibold mb-6 text-center">Iniciar Sesión</h2>
+            
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Correo Electrónico</label>
+                    <input type="email" id="email" placeholder="usuario@negocio.com" required 
+                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Contraseña</label>
+                    <input type="password" id="password" placeholder="••••••••" required 
+                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition">
+                </div>
+                <button type="submit" id="submit-btn" 
+                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg shadow-lg transform active:scale-95 transition duration-200 uppercase tracking-wider">
+                    Entrar
+                </button>
+            </form>
+
+            <div id="demo-panel" class="hidden mt-4">
+                <button type="button" id="btn-demo"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow-lg transform active:scale-95 transition duration-200 uppercase tracking-wider">
+                    Explorar Demo sin registro
+                </button>
+                <p class="text-[11px] text-gray-500 mt-2 text-center">Entorno de demostración con datos de ejemplo</p>
+            </div>
+
+            <div class="mt-8 text-center border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-500 mb-3">¿Deseas obtener una licencia para tu negocio?</p>
+                <a href="html/precios.html" class="inline-block px-6 py-2 border border-orange-500 text-orange-500 rounded-full hover:bg-orange-500 hover:text-white transition-all font-medium">
+                    Ver Información del Plan
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="JS/supabase-config.js"></script>
+    <script src="JS/auth.js"></script>
+</body>
+</html>

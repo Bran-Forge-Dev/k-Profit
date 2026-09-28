@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-Profit | Finanzas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .btn-export:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans p-4 md:p-8 overflow-x-hidden">
+
+    <nav class="bg-slate-900 border-b border-slate-800 p-4 mb-8 flex flex-wrap gap-4 md:gap-6 justify-center rounded-2xl shadow-lg">
+        <a href="ventas.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">🍗 Ventas</a>
+        <a href="inventario.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">📦 Inventario</a>
+        <a href="finanzas.html" class="text-orange-500 font-bold border-b-2 border-orange-500 transition-all text-sm md:text-base">📊 Finanzas</a>
+        <a href="configuracion.html" class="text-slate-400 hover:text-orange-500 font-bold transition-all text-sm md:text-base">⚙️ Configuración</a>
+    </nav>
+
+    <main class="max-w-6xl mx-auto space-y-6 md:space-y-10">
+        
+        <header class="flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div class="text-center lg:text-left">
+                <h1 class="text-3xl md:text-4xl font-black text-orange-500 italic uppercase tracking-tighter">Estado Financiero 📊</h1>
+                <p class="text-slate-400 text-xs md:text-sm font-medium italic mt-1">División automática: 40% Surtido | 10% Gastos | 50% Salario</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <div class="bg-slate-900 p-1 rounded-2xl border border-slate-800 flex items-center w-full sm:w-auto shadow-xl">
+                    <input type="date" id="filtro-fecha" 
+                        class="w-full bg-transparent text-white font-bold outline-none px-6 py-3 cursor-pointer text-center sm:text-left text-sm">
+                </div>
+                
+                <button onclick="exportarReportePDF()" 
+                    class="btn-export w-full sm:w-auto bg-orange-600 hover:bg-orange-500 text-white px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                    <span>📄</span> Exportar Reporte
+                </button>
+            </div>
+        </header>
+
+        <section class="bg-slate-900 border-2 border-green-500/20 p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-center">
+            <div class="absolute top-0 right-0 p-4 opacity-5 text-6xl md:text-9xl font-black select-none">$$$</div>
+            <p class="text-slate-500 uppercase text-[10px] md:text-xs font-black tracking-[0.4em] mb-3">Ventas Totales del Día</p>
+            <p id="total-acumulado" class="text-5xl md:text-7xl lg:text-8xl font-black text-green-400 font-mono drop-shadow-2xl">$0.00</p>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] shadow-xl hover:border-orange-500/50 transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="bg-orange-600/20 text-orange-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">40% Surtido</span>
+                    <span class="text-2xl opacity-50">🛒</span>
+                </div>
+                <p id="caja-surtido" class="text-3xl font-black text-white font-mono">$0.00</p>
+                <p class="text-[10px] text-slate-500 mt-2 italic leading-tight">Destinado a reponer pollo, papas y sodas.</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] shadow-xl hover:border-blue-500/50 transition-all">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="bg-blue-600/20 text-blue-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">10% Gastos</span>
+                    <span class="text-2xl opacity-50">💡</span>
+                </div>
+                <p id="caja-gastos" class="text-3xl font-black text-white font-mono">$0.00</p>
+                <p class="text-[10px] text-slate-500 mt-2 italic leading-tight">Luz, gas, aceite y mantenimiento.</p>
+            </div>
+
+            <div class="bg-slate-900 border-2 border-orange-500 p-6 rounded-[2rem] shadow-2xl bg-gradient-to-br from-slate-900 to-orange-950/20">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="bg-green-600/20 text-green-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">50% Salario</span>
+                    <span class="text-2xl opacity-50">💰</span>
+                </div>
+                <p id="caja-salario" class="text-4xl font-black text-white font-mono">$0.00</p>
+                <p class="text-[10px] text-orange-200/50 mt-2 italic font-bold">Dinero disponible para sueldo.</p>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <h3 class="p-6 font-black text-slate-500 uppercase tracking-widest text-[10px] border-b border-slate-800 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-orange-600 rounded-full animate-pulse"></span>
+                Últimos Movimientos del Día
+            </h3>
+            <div class="overflow-x-auto hide-scrollbar">
+                <table class="w-full text-left min-w-[500px]">
+                    <tbody id="tabla-movimientos-body" class="divide-y divide-slate-800/50">
+                        <tr><td class="p-10 text-center text-slate-600 italic uppercase text-[10px] tracking-widest">Cargando registros...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../JS/supabase-config.js"></script>
+    <script src="../JS/finanzas.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>
