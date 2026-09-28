@@ -26,10 +26,12 @@ create table if not exists perfiles (
 alter table perfiles enable row level security;
 
 -- Cada usuario solo puede LEER su propio perfil (no puede editar su fecha)
+drop policy if exists "own_profile_read" on perfiles;
 create policy "own_profile_read" on perfiles
     for select using (auth.uid() = id);
 
--- Perfil automático con 30 días al crear un usuario en Auth
+-- Perfil automático con 30 días + cajas financieras base (40/10/50)
+-- al crear un usuario en Auth
 create or replace function public.crear_perfil_nuevo_usuario()
 returns trigger
 language plpgsql
@@ -39,6 +41,14 @@ begin
     insert into public.perfiles (id, fecha_vencimiento)
     values (new.id, current_date + 30)
     on conflict (id) do nothing;
+
+    insert into public.dev_cajas_financieras (user_id, nombre, porcentaje, saldo_acumulado)
+    values
+        (new.id, 'Surtido', 40, 0),
+        (new.id, 'Gastos',  10, 0),
+        (new.id, 'Salario', 50, 0)
+    on conflict do nothing;
+
     return new;
 end $$;
 

@@ -114,6 +114,14 @@ begin
     insert into public.perfiles (id, fecha_vencimiento)
     values (new.id, current_date + 30)
     on conflict (id) do nothing;
+
+    insert into public.dev_cajas_financieras (user_id, nombre, porcentaje, saldo_acumulado)
+    values
+        (new.id, 'Surtido', 40, 0),
+        (new.id, 'Gastos',  10, 0),
+        (new.id, 'Salario', 50, 0)
+    on conflict do nothing;
+
     return new;
 end $$;
 
