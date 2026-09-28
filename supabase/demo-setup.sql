@@ -1,19 +1,25 @@
 -- ============================================================
--- K-PROFIT · SETUP DEL PROYECTO DEMO
+-- K-PROFIT · DATOS SEMILLA DEL USUARIO DEMO
 -- ============================================================
--- Pasos en el proyecto DEMO de Supabase:
---   1. Corre la SECCIÓN A (esquema + RLS) en el SQL Editor.
---   2. En Authentication > Users crea el usuario demo
---      (ej. demo@kprofit.app / KprofitDemo2026!) y copia su UUID.
---   3. Pega ese UUID en la variable `uid` de la SECCIÓN B y córrela.
---   4. Copia URL + anon key del proyecto demo a JS/supabase-config.js.
+-- La demo vive en el MISMO proyecto Supabase que prod; el aislamiento
+-- lo da el RLS por user_id. Pasos:
+--   1. En Authentication > Users crea el usuario demo
+--      (ej. demo@kprofit.app / KprofitDemo2026!, marcar Auto Confirm)
+--      y copia su UUID.
+--   2. Pega ese UUID en la variable `uid` de la SECCIÓN B y córrela.
+--   3. Ajusta demoEmail/demoPassword en JS/supabase-config.js si usaste otros.
 --
--- NOTA: este esquema está inferido desde el código JS. Verifica los
--- tipos contra el proyecto original (Table Editor) y ajusta si difiere.
+-- La SECCIÓN A solo hace falta si algún día migras la demo a un
+-- proyecto Supabase separado (esquema + RLS). En el proyecto actual
+-- las tablas ya existen — no la corras aquí.
+--
+-- Para resetear la demo: borra las filas del usuario demo con
+--   delete from dev_productos where user_id = '<uuid>';  -- (y resto de tablas)
+-- y vuelve a correr la SECCIÓN B.
 -- ============================================================
 
 
--- ============ SECCIÓN A: ESQUEMA + SEGURIDAD (RLS) ============
+-- ============ SECCIÓN A: ESQUEMA + RLS (referencia, no correr en prod) ============
 
 create table if not exists dev_productos (
     id          uuid primary key default gen_random_uuid(),

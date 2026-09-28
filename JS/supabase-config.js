@@ -1,9 +1,12 @@
 /**
  * CONFIGURACIÓN DE ENTORNOS — K-Profit
  * -----------------------------------
- * Un solo código, dos backends de Supabase:
- *   - prod: proyecto con usuarios reales
- *   - demo: proyecto para el portafolio (datos de ejemplo, reseteable)
+ * Un solo código, dos entornos sobre el MISMO proyecto Supabase:
+ *   - prod: usuarios reales del negocio
+ *   - demo: usuario de demostración para el portafolio
+ *
+ * El aislamiento lo da el RLS: cada usuario solo ve sus propios datos
+ * por user_id, así que la demo es simplemente "un usuario más".
  *
  * CÓMO SE ELIGE EL ENTORNO (en orden de prioridad):
  *   1. ?env=demo o ?env=prod en la URL (se guarda en localStorage,
@@ -19,17 +22,19 @@ var ENVIRONMENTS = {
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmRtaXJzdmhsZG1jc2lrenJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzIyMzEsImV4cCI6MjA4ODI0ODIzMX0.Au2ZR0eKwSSV5lIivml4y2f2ty8ioh14H8joGtxqDho'
     },
     demo: {
-        // TODO: crear el proyecto demo en Supabase y pegar sus credenciales
-        // (Settings > API). Las anon keys son públicas por diseño; la
-        // seguridad real la da el RLS. Ver supabase/demo-setup.sql
-        url: 'PENDIENTE_URL_PROYECTO_DEMO',
-        key: 'PENDIENTE_ANON_KEY_DEMO',
-        // Credenciales del usuario demo (se crean en Authentication > Users).
-        // Es seguro publicarlas: solo exponen los datos de ejemplo del demo.
+        // Credenciales del usuario demo — créalo en Authentication > Users
+        // del proyecto principal (marcar "Auto Confirm"). Es seguro
+        // publicarlas: el RLS lo limita exclusivamente a sus datos de ejemplo.
         demoEmail: 'demo@kprofit.app',
         demoPassword: 'KprofitDemo2026!'
     }
 };
+
+// La demo comparte el backend de prod (ver comentario superior).
+// Si algún día quieres un proyecto Supabase separado para la demo,
+// solo reemplaza estas dos líneas por su url/key:
+ENVIRONMENTS.demo.url = ENVIRONMENTS.prod.url;
+ENVIRONMENTS.demo.key = ENVIRONMENTS.prod.key;
 
 // Dominio exacto -> entorno. Ejemplo:
 //   'kprofit-demo.netlify.app': 'demo',

@@ -28,10 +28,13 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 
 ## Backend
 
-- Tablas con prefijo `dev_`, multi-tenant por columna `user_id` + RLS.
-- Ambos proyectos Supabase deben tener **el mismo esquema y nombres de tabla**.
-- `supabase/demo-setup.sql`: esquema + políticas RLS + datos semilla para el
-  proyecto demo (requiere crear primero el usuario demo en Auth y pegar su UUID).
+- Un solo proyecto Supabase; tablas con prefijo `dev_`, multi-tenant por
+  columna `user_id` + RLS.
+- El entorno **demo comparte el proyecto de prod**: es solo un usuario más
+  (`demo@kprofit.app`) cuyos datos quedan aislados por RLS. Las credenciales
+  del proyecto se toman del bloque `prod` en `supabase-config.js`.
+- `supabase/demo-setup.sql` Sección B: datos semilla para el usuario demo
+  (requiere pegar su UUID). Sección A es solo referencia de esquema.
 
 ## Convenciones de commits
 
@@ -40,7 +43,7 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 
 ## Pendiente para activar la demo
 
-- [ ] Crear proyecto demo en Supabase y correr `supabase/demo-setup.sql`
-- [ ] Pegar `url`/`key` del demo en `ENVIRONMENTS.demo`
-- [ ] Crear el usuario demo en Auth y ajustar `demoEmail`/`demoPassword`
-- [ ] Agregar el dominio de la demo a `HOST_ENV`
+- [ ] Crear el usuario demo en Authentication > Users (Auto Confirm)
+- [ ] Correr `supabase/demo-setup.sql` Sección B con su UUID
+- [ ] Ajustar `demoEmail`/`demoPassword` en `ENVIRONMENTS.demo`
+- [ ] Desplegar el sitio demo (hostname con "demo" lo detecta solo)
