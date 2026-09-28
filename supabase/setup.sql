@@ -95,11 +95,22 @@ alter table dev_ventas             enable row level security;
 alter table dev_cajas_financieras  enable row level security;
 alter table perfiles               enable row level security;
 
-create policy "owner" on dev_productos         for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "owner" on dev_insumos           for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "owner" on dev_recetas           for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "owner" on dev_ventas            for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-create policy "owner" on dev_cajas_financieras for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Dueño de la fila + licencia vigente (ver rls-licencias.sql)
+create policy "owner" on dev_productos for all
+    using (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date))
+    with check (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date));
+create policy "owner" on dev_insumos for all
+    using (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date))
+    with check (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date));
+create policy "owner" on dev_recetas for all
+    using (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date))
+    with check (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date));
+create policy "owner" on dev_ventas for all
+    using (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date))
+    with check (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date));
+create policy "owner" on dev_cajas_financieras for all
+    using (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date))
+    with check (auth.uid() = user_id and exists (select 1 from perfiles p where p.id = auth.uid() and p.fecha_vencimiento >= current_date));
 
 -- El perfil solo se puede leer, nunca editar (para que nadie se renueve solo)
 create policy "own_profile_read" on perfiles for select using (auth.uid() = id);
@@ -134,6 +145,65 @@ create trigger on_auth_user_created
 insert into perfiles (id, fecha_vencimiento)
 select id, current_date + 30 from auth.users
 on conflict (id) do nothing;
+
+-- Backfill: cajas 40/10/50 a usuarios existentes que aún no las tengan
+insert into dev_cajas_financieras (user_id, nombre, porcentaje, saldo_acumulado)
+select u.id, c.nombre, c.porcentaje, 0
+from auth.users u
+cross join (values ('Surtido', 40), ('Gastos', 10), ('Salario', 50)) as c(nombre, porcentaje)
+where not exists (
+    select 1 from dev_cajas_financieras cf
+    where cf.user_id = u.id and cf.nombre = c.nombre
+);
+
+
+-- ============ RPC: VENTA ATÓMICA ============
+-- venta + stock + cajas en una sola transacción (ver rpc-venta.sql)
+
+create or replace function public.registrar_venta(
+    p_items   jsonb,
+    p_total   numeric,
+    p_pago    numeric,
+    p_cambio  numeric,
+    p_fecha   timestamptz,
+    p_detalle text
+)
+returns void
+language plpgsql
+as $$
+declare
+    item jsonb;
+    ing  record;
+    v_user uuid := auth.uid();
+begin
+    if v_user is null then
+        raise exception 'No autenticado';
+    end if;
+
+    insert into dev_ventas (user_id, total_venta, pago_con, cambio, fecha, detalle_venta)
+    values (v_user, p_total, p_pago, p_cambio, p_fecha, p_detalle);
+
+    for item in select * from jsonb_array_elements(p_items) loop
+        for ing in
+            select insumo_id, cantidad_necesaria
+            from dev_recetas
+            where producto_id = (item->>'producto_id')::uuid
+              and user_id = v_user
+        loop
+            update dev_insumos
+            set stock_actual = stock_actual - (ing.cantidad_necesaria * (item->>'cantidad')::numeric)
+            where id = ing.insumo_id and user_id = v_user;
+        end loop;
+    end loop;
+
+    update dev_cajas_financieras
+    set saldo_acumulado = saldo_acumulado + (p_total * porcentaje / 100)
+    where user_id = v_user;
+end;
+$$;
+
+revoke all on function public.registrar_venta(jsonb, numeric, numeric, numeric, timestamptz, text) from public;
+grant execute on function public.registrar_venta(jsonb, numeric, numeric, numeric, timestamptz, text) to authenticated;
 
 
 -- ============ SECCIÓN B: DATOS SEMILLA ============

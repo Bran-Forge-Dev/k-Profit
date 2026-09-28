@@ -116,82 +116,33 @@ window.confirmarVenta = async () => {
     const fechaLocalISO = new Date(ahora.getTime() - tzo).toISOString();
 
     try {
-        // A. Registrar la venta vinculada al user_id
-        const { error: errorVenta } = await supabase
-            .from('dev_ventas')
-            .insert([{ 
-                user_id: user.id,
-                total_venta: total, 
-                pago_con: pago, 
-                cambio: pago - total,
-                fecha: fechaLocalISO,
-                detalle_venta: detalleResumen
-            }]);
+        // Una sola llamada RPC: venta + descuento de stock + cajas
+        // se ejecutan en una transacción atómica en la base de datos.
+        // Ver supabase/rpc-venta.sql
+        const items = carrito.map(p => ({ producto_id: p.id, cantidad: p.cantidad }));
 
-        if (errorVenta) throw errorVenta;
+        const { error } = await supabase.rpc('registrar_venta', {
+            p_items: items,
+            p_total: total,
+            p_pago: pago,
+            p_cambio: pago - total,
+            p_fecha: fechaLocalISO,
+            p_detalle: detalleResumen
+        });
 
-        // B. DESCUENTO AUTOMÁTICO DE STOCK (Tablas dev_)
-        for (const item of carrito) {
-            const { data: receta } = await supabase
-                .from('dev_recetas')
-                .select('insumo_id, cantidad_necesaria')
-                .eq('producto_id', item.id)
-                .eq('user_id', user.id);
-
-            if (receta && receta.length > 0) {
-                for (const ingrediente of receta) {
-                    const descuentoTotal = ingrediente.cantidad_necesaria * item.cantidad;
-                    
-                    const { data: insumo } = await supabase
-                        .from('dev_insumos')
-                        .select('stock_actual')
-                        .eq('id', ingrediente.insumo_id)
-                        .eq('user_id', user.id)
-                        .single();
-                    
-                    if (insumo) {
-                        await supabase
-                            .from('dev_insumos')
-                            .update({ stock_actual: insumo.stock_actual - descuentoTotal })
-                            .eq('id', ingrediente.insumo_id)
-                            .eq('user_id', user.id);
-                    }
-                }
-            }
-        }
-
-        // C. Distribución Financiera (Tablas dev_)
-        await actualizarCajasFinancieras(total, user.id);
+        if (error) throw error;
 
         alert("¡Venta exitosa! El historial y el inventario se han actualizado.");
-        carrito = []; 
+        carrito = [];
         actualizarInterfaz();
         cerrarModal();
-        cargarCatalogoDinamico(); 
+        cargarCatalogoDinamico();
 
     } catch (err) {
         console.error("Error crítico:", err);
         alert("Error al procesar la venta.");
     }
 };
-
-async function actualizarCajasFinancieras(montoTotal, userId) {
-    const { data: cajas } = await supabase
-        .from('dev_cajas_financieras')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (!cajas) return;
-
-    for (const caja of cajas) {
-        const incremento = (montoTotal * caja.porcentaje) / 100;
-        await supabase
-            .from('dev_cajas_financieras')
-            .update({ saldo_acumulado: caja.saldo_acumulado + incremento }) 
-            .eq('id', caja.id)
-            .eq('user_id', userId);
-    }
-}
 
 /**
  * 5. AUXILIARES DE UI

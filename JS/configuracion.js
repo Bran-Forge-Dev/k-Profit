@@ -3,6 +3,8 @@
  */
 var listaHtml = document.getElementById('lista-productos');
 var modalConfig = document.getElementById('modal-form');
+var productosDB = [];
+var editandoProductoId = null;
 
 /**
  * 2. LEER DATOS (SELECT - Tablas dev_)
@@ -25,6 +27,7 @@ async function pintarTablaAdmin() {
     }
 
     listaHtml.innerHTML = '';
+    productosDB = productos;
 
     if (productos.length === 0) {
         listaHtml.innerHTML = `
@@ -46,8 +49,12 @@ async function pintarTablaAdmin() {
                 <td class="p-6 text-slate-400 text-xs italic">${p.descripcion || 'Sin descripción'}</td>
                 <td class="p-6 uppercase text-[10px] font-black text-slate-500 tracking-widest">${p.categoria}</td>
                 <td class="p-6 font-mono text-green-400 font-bold">$${parseFloat(p.precio_venta).toFixed(2)}</td>
-                <td class="p-6 text-right">
-                    <button onclick="eliminarProducto('${p.id}')" 
+                <td class="p-6 text-right space-x-4">
+                    <button onclick="prepararEdicionProducto('${p.id}')"
+                        class="text-slate-600 hover:text-orange-500 font-black text-[10px] uppercase tracking-widest transition-colors">
+                        Editar
+                    </button>
+                    <button onclick="eliminarProducto('${p.id}')"
                         class="text-slate-600 hover:text-red-500 font-black text-[10px] uppercase tracking-widest transition-colors">
                         Eliminar
                     </button>
@@ -73,19 +80,27 @@ window.guardarNuevoProducto = async function() {
 
     if(!nombre || !precio) return alert("Nombre y Precio son obligatorios");
 
-    // Insertamos en dev_productos con el user_id correspondiente
-    const { error } = await supabase
-        .from('dev_productos')
-        .insert([
-            { 
-                user_id: user.id, // Vínculo de propiedad
-                icono: icono, 
-                nombre: nombre, 
-                descripcion: descripcion, 
-                categoria: categoria, 
-                precio_venta: parseFloat(precio) 
-            }
-        ]);
+    const datos = {
+        icono: icono,
+        nombre: nombre,
+        descripcion: descripcion,
+        categoria: categoria,
+        precio_venta: parseFloat(precio)
+    };
+
+    let error;
+    if (editandoProductoId) {
+        // UPDATE: edición de producto existente
+        ({ error } = await supabase
+            .from('dev_productos')
+            .update(datos)
+            .eq('id', editandoProductoId)
+            .eq('user_id', user.id));
+    } else {
+        // INSERT: nuevo producto vinculado al user_id
+        datos.user_id = user.id;
+        ({ error } = await supabase.from('dev_productos').insert([datos]));
+    }
 
     if (error) {
         alert("Error al guardar: " + error.message);
@@ -180,12 +195,30 @@ window.pintarEmojis = function(categoria) {
 /**
  * 5. CONTROLES DEL MODAL
  */
+window.prepararEdicionProducto = function(id) {
+    const p = productosDB.find(x => x.id === id);
+    if (!p) return;
+    editandoProductoId = id;
+    document.getElementById('p-icono').value = p.icono || '';
+    document.getElementById('p-nombre').value = p.nombre;
+    document.getElementById('p-descripcion').value = p.descripcion || '';
+    document.getElementById('p-categoria').value = p.categoria;
+    document.getElementById('p-precio').value = p.precio_venta;
+    const titulo = document.getElementById('modal-form-titulo');
+    if (titulo) titulo.innerText = 'Editar Producto';
+    if (modalConfig) modalConfig.classList.remove('hidden');
+};
+
 window.abrirModal = () => {
+    editandoProductoId = null;
+    const titulo = document.getElementById('modal-form-titulo');
+    if (titulo) titulo.innerText = 'Datos del Producto';
     if(modalConfig) modalConfig.classList.remove('hidden');
 };
 
 window.cerrarModal = () => {
     if(modalConfig) modalConfig.classList.add('hidden');
+    editandoProductoId = null;
     document.getElementById('p-icono').value = '';
     document.getElementById('p-nombre').value = '';
     document.getElementById('p-descripcion').value = '';
