@@ -31,6 +31,7 @@ async function cargarDatosInventario() {
             id,
             cantidad_necesaria,
             producto_id,
+            insumo_id,
             dev_insumos (nombre, costo_unitario, unidad)
         `)
         .eq('user_id', user.id);
@@ -113,23 +114,45 @@ window.actualizarAnalisisMargen = async function() {
     }
 
     const { data: producto } = await supabase.from('dev_productos').select('precio_venta').eq('id', productoId).eq('user_id', user.id).single();
-    
+
     const ingredientes = recetasDB.filter(r => r.producto_id === productoId);
-    
+
     let totalCostoProduccion = 0;
-    contenedor.innerHTML = ''; 
+    contenedor.innerHTML = '<p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2">Ingredientes de la receta</p>';
 
     ingredientes.forEach(ing => {
         const infoInsumo = ing.dev_insumos;
         const costoCalculado = infoInsumo.costo_unitario * ing.cantidad_necesaria;
         totalCostoProduccion += costoCalculado;
-        
+
         contenedor.innerHTML += `
             <div class="flex justify-between items-center p-4 bg-slate-950 border border-slate-800 rounded-2xl mb-3 shadow-sm">
                 <span class="text-white font-bold">${infoInsumo.nombre} (${ing.cantidad_necesaria}${infoInsumo.unidad || 'gr'})</span>
-                <span class="font-mono text-white font-bold tracking-tighter">$${costoCalculado.toFixed(2)}</span>
+                <div class="flex items-center gap-4">
+                    <span class="font-mono text-white font-bold tracking-tighter">$${costoCalculado.toFixed(2)}</span>
+                    <button onclick="eliminarIngredienteReceta('${ing.id}')" title="Quitar de la receta"
+                        class="text-slate-600 hover:text-red-500 font-black text-sm transition-colors">✕</button>
+                </div>
             </div>`;
     });
+
+    if (ingredientes.length === 0) {
+        contenedor.innerHTML += '<p class="text-slate-600 italic text-xs mb-3">Este producto no tiene receta todavía. Agrega su primer ingrediente:</p>';
+    }
+
+    contenedor.innerHTML += `
+        <div class="flex flex-wrap gap-2 items-center p-3 bg-slate-900 border border-dashed border-slate-700 rounded-2xl">
+            <select id="nuevo-ing-insumo" class="flex-1 min-w-[140px] bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-orange-500 cursor-pointer">
+                <option value="">+ Insumo...</option>
+                ${insumosDB.map(i => `<option value="${i.id}">${i.nombre} (${i.unidad})</option>`).join('')}
+            </select>
+            <input type="number" id="nuevo-ing-cantidad" placeholder="Cant." step="0.01" min="0"
+                class="w-24 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white text-center outline-none focus:border-orange-500 font-mono">
+            <button onclick="agregarIngredienteReceta()"
+                class="bg-orange-600 hover:bg-orange-500 text-white px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95">
+                Agregar
+            </button>
+        </div>`;
 
     const gananciaBruta = (producto?.precio_venta || 0) - totalCostoProduccion;
     const porcentajeUtilidad = producto?.precio_venta > 0 ? (gananciaBruta / producto.precio_venta) * 100 : 0;
@@ -143,6 +166,62 @@ window.actualizarAnalisisMargen = async function() {
         elUtilidad.className = "text-green-400 font-black not-italic text-xl ml-2";
     }
 }
+
+/**
+ * 4.5 EDICIÓN DE RECETAS (agregar / quitar ingredientes)
+ */
+async function refrescarRecetas() {
+    const selPrevio = selectorProducto ? selectorProducto.value : '';
+    await cargarDatosInventario();
+    if (selectorProducto && selPrevio) {
+        selectorProducto.value = selPrevio;
+        actualizarAnalisisMargen();
+    }
+}
+
+window.agregarIngredienteReceta = async function() {
+    const user = await obtenerUsuario();
+    if (!user || !selectorProducto) return;
+
+    const productoId = selectorProducto.value;
+    const insumoId = document.getElementById('nuevo-ing-insumo').value;
+    const cantidad = parseFloat(document.getElementById('nuevo-ing-cantidad').value);
+
+    if (!insumoId || !(cantidad > 0)) return alert("Elige un insumo y una cantidad válida");
+    if (recetasDB.some(r => r.producto_id === productoId && r.dev_insumos && r.insumo_id === insumoId)) {
+        return alert("Ese insumo ya está en la receta — quítalo y vuelve a agregarlo para cambiar la cantidad");
+    }
+
+    const { error } = await supabase.from('dev_recetas').insert([{
+        user_id: user.id,
+        producto_id: productoId,
+        insumo_id: insumoId,
+        cantidad_necesaria: cantidad
+    }]);
+
+    if (error) {
+        alert("Error al agregar ingrediente: " + error.message);
+    } else {
+        refrescarRecetas();
+    }
+};
+
+window.eliminarIngredienteReceta = async function(recetaId) {
+    const user = await obtenerUsuario();
+    if (!user) return;
+
+    const { error } = await supabase
+        .from('dev_recetas')
+        .delete()
+        .eq('id', recetaId)
+        .eq('user_id', user.id);
+
+    if (error) {
+        alert("Error al quitar ingrediente: " + error.message);
+    } else {
+        refrescarRecetas();
+    }
+};
 
 /**
  * 5. GESTIÓN DE MODAL (SURTIR / NUEVO)

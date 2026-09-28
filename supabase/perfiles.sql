@@ -61,3 +61,13 @@ create trigger on_auth_user_created
 insert into perfiles (id, fecha_vencimiento)
 select id, current_date + 30 from auth.users
 on conflict (id) do nothing;
+
+-- Backfill: cajas 40/10/50 a usuarios existentes que aún no las tengan
+insert into dev_cajas_financieras (user_id, nombre, porcentaje, saldo_acumulado)
+select u.id, c.nombre, c.porcentaje, 0
+from auth.users u
+cross join (values ('Surtido', 40), ('Gastos', 10), ('Salario', 50)) as c(nombre, porcentaje)
+where not exists (
+    select 1 from dev_cajas_financieras cf
+    where cf.user_id = u.id and cf.nombre = c.nombre
+);
