@@ -120,6 +120,64 @@ window.eliminarProducto = async function(id) {
 };
 
 /**
+ * 4.5 SELECTOR DE EMOJIS
+ * Catálogo por categorías; el grid se pinta dinámicamente.
+ */
+var EMOJIS = {
+    '🍗 Pollo y rápida': ['🍗','🍔','🍟','🌭','🍕','🌮','🌯','🥪','🫔','🥡','🍤','🍖','🍘'],
+    '🍽️ Comida':        ['🥩','🥓','🐟','🦐','🍝','🍜','🍲','🥘','🍛','🍱','🥗','🫕','🍳','🥙','🧆','🍚','🫓','🥟','🍢','🥠'],
+    '🥐 Pan y desayuno': ['🥐','🥯','🍞','🥞','🧇','🧀','🥚','🍳','🥣','🥛','🧈','🥖'],
+    '🍰 Postres':        ['🍰','🧁','🍦','🍨','🍧','🍩','🍪','🎂','🍫','🍬','🍭','🥧','🍮','🍡','🥮','🍯'],
+    '🥤 Bebidas':        ['🥤','🧃','🧋','🍹','🍸','🧉','🫗','🥛','🍼','🍶','🍺','🍻','🍷','🥂','🍾','🥃','🫖'],
+    '☕ Café':           ['☕','🍵','🫖','🧋','🥛','🍯','🫘'],
+    '🍎 Frutas':         ['🍎','🍊','🍋','🍉','🍇','🍓','🫐','🍑','🍍','🥭','🍌','🥑','🍅','🍒','🥝','🍈','🍐','🥥'],
+    '🥬 Verduras':       ['🥦','🥕','🌽','🌶️','🫑','🥒','🥬','🧄','🧅','🍄','🥔','🍠','🫛','🫜','🍆','🥗'],
+    '🍿 Snacks':         ['🍿','🥨','🥜','🧂','🫘','🥫','🧊','🍬','🌰','🍥']
+};
+
+window.abrirSelectorEmoji = function() {
+    const modal = document.getElementById('modal-emoji');
+    if (!modal) return;
+    pintarFiltrosEmoji();
+    pintarEmojis('todo');
+    modal.classList.remove('hidden');
+};
+
+window.cerrarSelectorEmoji = function() {
+    const modal = document.getElementById('modal-emoji');
+    if (modal) modal.classList.add('hidden');
+};
+
+window.seleccionarEmoji = function(emoji) {
+    document.getElementById('p-icono').value = emoji;
+    cerrarSelectorEmoji();
+};
+
+function pintarFiltrosEmoji() {
+    const cont = document.getElementById('emoji-filtros');
+    if (!cont) return;
+    const categorias = ['todo', ...Object.keys(EMOJIS)];
+    cont.innerHTML = categorias.map(cat =>
+        `<button type="button" onclick="pintarEmojis('${cat}')"
+            class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap bg-slate-800 text-slate-400 hover:bg-orange-600 hover:text-white transition-all">
+            ${cat === 'todo' ? '🌟 Todo' : cat}
+        </button>`
+    ).join('');
+}
+
+window.pintarEmojis = function(categoria) {
+    const grid = document.getElementById('grid-emojis');
+    if (!grid) return;
+    const grupos = categoria === 'todo' ? Object.keys(EMOJIS) : [categoria];
+    grid.innerHTML = grupos.flatMap(grupo =>
+        EMOJIS[grupo].map(em =>
+            `<button type="button" onclick="seleccionarEmoji('${em}')"
+                class="text-2xl p-2 bg-slate-800 hover:bg-orange-600 rounded-xl transition-all active:scale-90">${em}</button>`
+        )
+    ).join('');
+};
+
+/**
  * 5. CONTROLES DEL MODAL
  */
 window.abrirModal = () => {

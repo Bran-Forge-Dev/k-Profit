@@ -72,7 +72,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div class="sm:col-span-1">
                         <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Icono</label>
-                        <input type="text" id="p-icono" placeholder="🍔" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white text-center text-2xl">
+                        <input type="text" id="p-icono" placeholder="🍔" readonly onclick="abrirSelectorEmoji()" title="Clic para elegir icono"
+                               class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white text-center text-2xl cursor-pointer hover:border-orange-500/60">
                     </div>
                     <div class="sm:col-span-3">
                         <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Nombre Completo</label>
@@ -109,6 +110,17 @@
                     Cancelar
                 </button>
             </div>
+        </div>
+    </div>
+
+    <div id="modal-emoji" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 z-[60]">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-[2rem] w-full max-w-md shadow-2xl">
+            <header class="flex justify-between items-center mb-4">
+                <h3 class="font-black text-orange-500 uppercase italic tracking-tighter">Elige un icono</h3>
+                <button onclick="cerrarSelectorEmoji()" class="text-slate-500 hover:text-white font-black text-lg transition-colors">✕</button>
+            </header>
+            <div id="emoji-filtros" class="flex gap-2 overflow-x-auto hide-scrollbar mb-4 pb-1"></div>
+            <div id="grid-emojis" class="grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[50vh] overflow-y-auto hide-scrollbar"></div>
         </div>
     </div>
 
