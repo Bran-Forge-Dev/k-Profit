@@ -18,8 +18,8 @@
 
 var ENVIRONMENTS = {
     prod: {
-        url: 'https://kcfdmirsvhldmcsikzrx.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtjZmRtaXJzdmhsZG1jc2lrenJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzIyMzEsImV4cCI6MjA4ODI0ODIzMX0.Au2ZR0eKwSSV5lIivml4y2f2ty8ioh14H8joGtxqDho'
+        url: 'https://zskmxfxafxgbdohcxvgf.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpza214ZnhhZnhnYmRvaGN4dmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzIyNjksImV4cCI6MjA4ODI0ODI2OX0.LNQ2N8dx8chWj7NL1HVAjp37bGSu9sKUCMxLZuEEGY0'
     },
     demo: {
         // Credenciales del usuario demo — créalo en Authentication > Users
