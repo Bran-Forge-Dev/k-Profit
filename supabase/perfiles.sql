@@ -4,10 +4,16 @@
 -- Corre esto UNA VEZ en el proyecto actual. Después:
 --   - Cada usuario nuevo (Auth > Add user) obtiene 30 días de
 --     licencia automáticamente vía trigger.
---   - Para renovar a alguien que pagó:
---       update perfiles set fecha_vencimiento = fecha_vencimiento + 30
---       where id = '<uuid-del-usuario>';
---   - Para suspender manualmente: pon la fecha en el pasado.
+--   - Renovar a alguien que pagó (suma 30 días sin perder vigencia previa):
+--       update perfiles
+--       set fecha_vencimiento = greatest(fecha_vencimiento, current_date) + 30
+--       where id = (select id from auth.users where email = 'cliente@negocio.com');
+--   - Suspender manualmente: fecha_vencimiento = current_date - 1.
+--   - Ver clientes y vencimientos:
+--       select u.email, p.fecha_vencimiento,
+--              p.fecha_vencimiento - current_date as dias_restantes
+--       from perfiles p join auth.users u on u.id = p.id
+--       order by p.fecha_vencimiento;
 --   - Los usuarios existentes reciben 30 días con el backfill de abajo.
 -- ============================================================
 
