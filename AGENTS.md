@@ -33,6 +33,11 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 - `supabase/demo-setup.sql`: esquema + políticas RLS + datos semilla para el
   proyecto demo (requiere crear primero el usuario demo en Auth y pegar su UUID).
 
+## Convenciones de commits
+
+- Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, etc.
+- Sin footer "Generated with Devin" ni `Co-Authored-By`.
+
 ## Pendiente para activar la demo
 
 - [ ] Crear proyecto demo en Supabase y correr `supabase/demo-setup.sql`
