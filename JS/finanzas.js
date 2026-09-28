@@ -8,17 +8,6 @@ var elSalario = document.getElementById('caja-salario');
 var tablaMovimientos = document.getElementById('tabla-movimientos-body');
 var selectorFecha = document.getElementById('filtro-fecha');
 
-// Función para verificar sesión y obtener usuario
-async function obtenerUsuario() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        // Redirección corregida: sale de /html y busca index.html en la raíz
-        window.location.href = '../index.html';
-        return null;
-    }
-    return user;
-}
-
 /**
  * FUNCIÓN AUXILIAR: Obtener fecha local en formato AAAA-MM-DD
  */

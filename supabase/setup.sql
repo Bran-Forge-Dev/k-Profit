@@ -30,6 +30,7 @@ drop table if exists dev_ventas cascade;
 drop table if exists dev_cajas_financieras cascade;
 drop table if exists dev_productos cascade;
 drop table if exists dev_insumos cascade;
+drop table if exists perfiles cascade;
 
 create table dev_productos (
     id          uuid primary key default gen_random_uuid(),
@@ -80,18 +81,51 @@ create table dev_cajas_financieras (
     created_at      timestamptz default now()
 );
 
+create table perfiles (
+    id                uuid primary key references auth.users(id),
+    fecha_vencimiento date not null,
+    created_at        timestamptz default now()
+);
+
 -- RLS: cada usuario solo ve y modifica sus propios datos
 alter table dev_productos          enable row level security;
 alter table dev_insumos            enable row level security;
 alter table dev_recetas            enable row level security;
 alter table dev_ventas             enable row level security;
 alter table dev_cajas_financieras  enable row level security;
+alter table perfiles               enable row level security;
 
 create policy "owner" on dev_productos         for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "owner" on dev_insumos           for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "owner" on dev_recetas           for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "owner" on dev_ventas            for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "owner" on dev_cajas_financieras for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- El perfil solo se puede leer, nunca editar (para que nadie se renueve solo)
+create policy "own_profile_read" on perfiles for select using (auth.uid() = id);
+
+-- Perfil automático con 30 días al crear un usuario en Auth
+create or replace function public.crear_perfil_nuevo_usuario()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+    insert into public.perfiles (id, fecha_vencimiento)
+    values (new.id, current_date + 30)
+    on conflict (id) do nothing;
+    return new;
+end $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute function public.crear_perfil_nuevo_usuario();
+
+-- Backfill: perfil de 30 días para usuarios ya existentes
+insert into perfiles (id, fecha_vencimiento)
+select id, current_date + 30 from auth.users
+on conflict (id) do nothing;
 
 
 -- ============ SECCIÓN B: DATOS SEMILLA ============

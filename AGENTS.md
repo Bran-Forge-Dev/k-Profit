@@ -36,6 +36,12 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
 - `supabase/setup.sql`: Sección A = drop + esquema + RLS (**destructivo,
   borra todos los datos**); Sección B = datos semilla para el UUID que
   se pegue en `uid` (correrla por usuario).
+- **Licencias**: tabla `perfiles` con `fecha_vencimiento`. Un trigger crea
+  perfil de +30 días a cada usuario nuevo de Auth. `obtenerUsuario()`
+  (en `supabase-config.js`, compartida por todas las páginas) bloquea
+  acceso si la fecha ya pasó. Renovar = UPDATE a la fecha en el dashboard.
+- `supabase/perfiles.sql`: migración standalone para agregar licencias a
+  un proyecto existente (equivalente a la parte de perfiles de setup.sql).
 
 ## Convenciones de commits
 

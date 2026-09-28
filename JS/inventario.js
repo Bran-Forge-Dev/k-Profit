@@ -10,17 +10,6 @@ var tbody = document.getElementById('tabla-insumos');
 var modalInsumo = document.getElementById('modal-insumo');
 var selectorProducto = document.getElementById('selector-producto-analisis');
 
-// Función para verificar sesión y obtener usuario
-async function obtenerUsuario() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        // Redirección corregida: sale de /html y busca index.html en la raíz
-        window.location.href = '../index.html';
-        return null;
-    }
-    return user;
-}
-
 /**
  * 2. CARGA DE DATOS DESDE SUPABASE (Tablas dev_)
  */

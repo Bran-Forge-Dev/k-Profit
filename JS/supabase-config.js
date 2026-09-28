@@ -77,3 +77,33 @@ if (APP_CONFIG.url.indexOf('https://') !== 0) {
 var supabase = window.supabase.createClient(APP_CONFIG.url, APP_CONFIG.key);
 
 console.log('[K-Profit] Entorno activo: ' + APP_ENV);
+
+/**
+ * Función compartida de protección de ruta + verificación de licencia.
+ * - Sin sesión -> redirige al login.
+ * - Con licencia vencida (o sin perfil) -> avisa, cierra sesión y redirige.
+ * Los archivos de página la llaman al cargar sus datos.
+ */
+async function obtenerUsuario() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        window.location.href = '../index.html';
+        return null;
+    }
+
+    const { data: perfil } = await supabase
+        .from('perfiles')
+        .select('fecha_vencimiento')
+        .eq('id', user.id)
+        .single();
+
+    const hoy = new Date().toISOString().slice(0, 10);
+    if (!perfil || perfil.fecha_vencimiento < hoy) {
+        alert('Tu acceso venció o está suspendido. Contacta a soporte para renovar tu licencia.');
+        await supabase.auth.signOut();
+        window.location.href = '../index.html';
+        return null;
+    }
+
+    return user;
+}

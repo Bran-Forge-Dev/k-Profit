@@ -4,17 +4,6 @@
 var listaHtml = document.getElementById('lista-productos');
 var modalConfig = document.getElementById('modal-form');
 
-// Función para verificar sesión y obtener usuario
-async function obtenerUsuario() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        // Redirección corregida: sale de /html y busca index.html en la raíz
-        window.location.href = '../index.html';
-        return null;
-    }
-    return user;
-}
-
 /**
  * 2. LEER DATOS (SELECT - Tablas dev_)
  * Consulta la tabla 'dev_productos' filtrando por el usuario logueado.

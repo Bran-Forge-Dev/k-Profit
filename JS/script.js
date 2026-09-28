@@ -10,17 +10,6 @@ const displayTotalTicket = document.getElementById('total-ticket');
 const modalCobro = document.getElementById('modal-cobro');
 const inputEfectivo = document.getElementById('input-efectivo');
 
-// Función para verificar sesión y obtener usuario
-async function obtenerUsuario() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        // Redirección corregida: sale de /html y busca index.html en la raíz
-        window.location.href = '../index.html';
-        return null;
-    }
-    return user;
-}
-
 /**
  * 2. CARGA DINÁMICA DESDE SUPABASE (Tablas dev_)
  */
