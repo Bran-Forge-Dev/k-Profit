@@ -4,9 +4,12 @@
 -- Corre esto UNA VEZ en el proyecto actual. Después:
 --   - Cada usuario nuevo (Auth > Add user) obtiene 30 días de
 --     licencia automáticamente vía trigger.
---   - Al crear el usuario, en "User Metadata" puedes pegar:
---       {"nombre_negocio": "Pollos Juan", "whatsapp": "5281..."}
---     El trigger lo copia a su perfil.
+--   - Registrar a qué negocio pertenece (después de crear el usuario):
+--       update perfiles
+--       set nombre_negocio = 'Pollos Juan', whatsapp = '5281...'
+--       where id = (select id from auth.users where email = 'cliente@negocio.com');
+--     (Si el usuario se crea por API con user metadata
+--     {"nombre_negocio": "...", "whatsapp": "..."}, el trigger lo copia solo.)
 --   - Renovar a alguien que pagó (suma 30 días sin perder vigencia previa):
 --       update perfiles
 --       set fecha_vencimiento = greatest(fecha_vencimiento, current_date) + 30

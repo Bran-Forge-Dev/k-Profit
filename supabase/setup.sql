@@ -13,10 +13,10 @@
 --   3. Pega ese UUID en `uid` de la SECCIÓN B y córrela.
 --   4. Ajusta demoEmail/demoPassword en JS/supabase-config.js si usaste otros.
 --
--- Al crear usuarios de clientes (Authentication > Users), llena el campo
--- "User Metadata" con:
---   {"nombre_negocio": "Pollos Juan", "whatsapp": "5281..."}
--- El trigger copia esos datos a su perfil automáticamente.
+-- Después de crear usuarios de clientes (Authentication > Users),
+-- registra su negocio con un UPDATE a perfiles (ejemplos en perfiles.sql).
+-- Si creas usuarios por API con metadata {"nombre_negocio", "whatsapp"},
+-- el trigger lo copia a perfiles automáticamente.
 --
 -- Para sembrar datos también en TU usuario real, corre la SECCIÓN B
 -- una segunda vez con tu UUID.

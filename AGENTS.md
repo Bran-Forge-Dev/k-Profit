@@ -41,9 +41,9 @@ En modo demo, `index.html` muestra el botón "Explorar Demo sin registro"
   (en `supabase-config.js`, compartida por todas las páginas) bloquea
   acceso si la fecha ya pasó. Renovar = UPDATE a la fecha en el dashboard.
 - **Registro de clientes**: `perfiles` también guarda `nombre_negocio` y
-  `whatsapp`. El trigger los toma del "User Metadata" al crear el usuario
-  en Auth (`{"nombre_negocio": "...", "whatsapp": "..."}`). La query admin
-  para ver clientes y vencimientos está en `supabase/perfiles.sql`.
+  `whatsapp`. Tras crear el usuario en Auth, se llenan con un UPDATE
+  (ejemplos en `supabase/perfiles.sql`); el trigger también los toma del
+  user metadata si el usuario se crea por API.
 - `supabase/perfiles.sql`: migración standalone para agregar licencias a
   un proyecto existente (equivalente a la parte de perfiles de setup.sql).
 
