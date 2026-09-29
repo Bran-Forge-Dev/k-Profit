@@ -193,6 +193,29 @@ window.pintarEmojis = function(categoria) {
 };
 
 /**
+ * 4.6 CAMBIAR CONTRASEÑA
+ * El usuario ya está logueado, así que basta un updateUser;
+ * no requiere correo ni confirmación adicional.
+ */
+window.cambiarPassword = async function() {
+    const nueva = document.getElementById('pw-nueva').value;
+    const confirmar = document.getElementById('pw-confirmar').value;
+
+    if (nueva.length < 6) return alert("La contraseña debe tener al menos 6 caracteres");
+    if (nueva !== confirmar) return alert("Las contraseñas no coinciden");
+
+    const { error } = await supabase.auth.updateUser({ password: nueva });
+
+    if (error) {
+        alert("Error al actualizar: " + error.message);
+    } else {
+        alert("Contraseña actualizada correctamente");
+        document.getElementById('pw-nueva').value = '';
+        document.getElementById('pw-confirmar').value = '';
+    }
+};
+
+/**
  * 5. CONTROLES DEL MODAL
  */
 window.prepararEdicionProducto = function(id) {

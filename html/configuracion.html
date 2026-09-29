@@ -58,6 +58,28 @@
                 </table>
             </div>
         </section>
+
+        <section class="tabla-contenedor bg-slate-900 shadow-2xl p-6 md:p-10">
+            <header class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-black text-orange-500 uppercase italic tracking-tighter">Cambiar Contraseña</h2>
+                <p class="text-slate-500 text-xs uppercase font-bold tracking-widest mt-1">Seguridad de tu cuenta</p>
+            </header>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Nueva contraseña</label>
+                    <input type="password" id="pw-nueva" placeholder="Mínimo 6 caracteres"
+                           class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-black uppercase mb-2 block tracking-widest">Confirmar contraseña</label>
+                    <input type="password" id="pw-confirmar" placeholder="Repite la contraseña"
+                           class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl focus:border-orange-500 outline-none font-bold text-white">
+                </div>
+            </div>
+            <button onclick="cambiarPassword()" class="mt-6 w-full sm:w-auto bg-orange-600 hover:bg-orange-500 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all active:scale-95 text-white">
+                Actualizar Contraseña
+            </button>
+        </section>
     </main>
 
     <div id="modal-form" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 z-50">
