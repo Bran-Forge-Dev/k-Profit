@@ -13,6 +13,11 @@
 --   3. Pega ese UUID en `uid` de la SECCIÓN B y córrela.
 --   4. Ajusta demoEmail/demoPassword en JS/supabase-config.js si usaste otros.
 --
+-- Al crear usuarios de clientes (Authentication > Users), llena el campo
+-- "User Metadata" con:
+--   {"nombre_negocio": "Pollos Juan", "whatsapp": "5281..."}
+-- El trigger copia esos datos a su perfil automáticamente.
+--
 -- Para sembrar datos también en TU usuario real, corre la SECCIÓN B
 -- una segunda vez con tu UUID.
 --
@@ -84,6 +89,8 @@ create table dev_cajas_financieras (
 create table perfiles (
     id                uuid primary key references auth.users(id),
     fecha_vencimiento date not null,
+    nombre_negocio    text,
+    whatsapp          text,
     created_at        timestamptz default now()
 );
 
@@ -122,8 +129,13 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-    insert into public.perfiles (id, fecha_vencimiento)
-    values (new.id, current_date + 30)
+    insert into public.perfiles (id, fecha_vencimiento, nombre_negocio, whatsapp)
+    values (
+        new.id,
+        current_date + 30,
+        new.raw_user_meta_data->>'nombre_negocio',
+        new.raw_user_meta_data->>'whatsapp'
+    )
     on conflict (id) do nothing;
 
     insert into public.dev_cajas_financieras (user_id, nombre, porcentaje, saldo_acumulado)

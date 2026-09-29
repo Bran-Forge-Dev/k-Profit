@@ -197,6 +197,22 @@ window.pintarEmojis = function(categoria) {
  * El usuario ya está logueado, así que basta un updateUser;
  * no requiere correo ni confirmación adicional.
  */
+async function pintarCuenta() {
+    const user = await obtenerUsuario();
+    if (!user) return;
+
+    const { data: perfil } = await supabase
+        .from('perfiles')
+        .select('nombre_negocio')
+        .eq('id', user.id)
+        .single();
+
+    const elNegocio = document.getElementById('cuenta-negocio');
+    const elEmail = document.getElementById('cuenta-email');
+    if (elNegocio) elNegocio.innerText = (perfil && perfil.nombre_negocio) || 'Negocio sin nombre';
+    if (elEmail) elEmail.innerText = user.email;
+}
+
 window.cambiarPassword = async function() {
     const nueva = document.getElementById('pw-nueva').value;
     const confirmar = document.getElementById('pw-confirmar').value;
@@ -265,4 +281,5 @@ function marcarPaginaActiva() {
 document.addEventListener('DOMContentLoaded', () => {
     marcarPaginaActiva();
     pintarTablaAdmin();
+    pintarCuenta();
 });
