@@ -37,11 +37,12 @@ ENVIRONMENTS.demo.url = ENVIRONMENTS.prod.url;
 ENVIRONMENTS.demo.key = ENVIRONMENTS.prod.key;
 
 // Dominio exacto -> entorno. Ejemplo:
-//   'kprofit-demo.netlify.app': 'demo',
+//   'kprofit-demo.vercel.app': 'demo',
 //   'kprofit.com': 'prod'
 var HOST_ENV = {
     'localhost': 'prod',
-    '127.0.0.1': 'prod'
+    '127.0.0.1': 'prod',
+    'k-profit.vercel.app': 'prod'
 };
 
 function detectarEntorno() {
